@@ -1,18 +1,19 @@
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { QBtn, QItem, QList, QMenu, QSelect } from 'quasar';
-import { ShellEvent, StdEvent } from 'app/src-electron/events/ShellEvent';
 import styles from './style/index.module.scss';
 import { LogInfo, LogLevel } from './meta';
 import { useLocalStorage } from '@vueuse/core';
+import { TypeExpose } from 'app/src-electron/preload/preload';
 
 const projectKey = 'projectPath';
 export default defineComponent({
     name: 'mainView',
     setup() {
-        const global = window as unknown as Record<
-            string,
-            Record<ShellEvent | StdEvent, (...args: unknown[]) => Promise<unknown>>
-        >;
+        // const global = window as unknown as Record<
+        //     string,
+        //     Record<ShellEvent | StdEvent, (...args: unknown[]) => Promise<unknown>>
+        // >;
+        const global = window as unknown as TypeExpose;
 
         const projectInfo = useLocalStorage<{ path: string; projectName: string }>(
             projectKey,
@@ -29,12 +30,12 @@ export default defineComponent({
         const onDialog = async () => {
             const some = await global.shell.dialog();
             if (some) {
-                projectInfo.value = some as any;
+                projectInfo.value = some;
             }
             console.log(some);
         };
 
-        const onRunScript = (command) => {
+        const onRunScript = (command: string) => {
             global.shell.script({ command, cwd: cwd.value });
         };
 
@@ -56,7 +57,7 @@ export default defineComponent({
         };
 
         const getAllbranch = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-            const branchInfo = (await global.shell.git({ command: 'branch', cwd: cwd.value })) as any;
+            const branchInfo = await global.shell.git({ command: 'branch', cwd: cwd.value });
             if (doneFn) {
                 doneFn(() => {
                     branchs.value = branchInfo.all;
@@ -70,7 +71,7 @@ export default defineComponent({
         };
 
         const getAllScripts = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-            const scriptDict = (await global.shell.scriptList({ cwd: cwd.value })) as any;
+            const scriptDict = await global.shell.scriptList({ cwd: cwd.value });
             const tempList = Object.keys(scriptDict);
             if (doneFn) {
                 doneFn(() => {

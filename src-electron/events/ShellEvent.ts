@@ -12,4 +12,4 @@ export enum StdEvent {
     off = 'off',
 }
 
-export type CommonFunction<RT = undefined> = (...args: unknown[]) => RT;
+export type CommonFunction<RT = void> = (...args: any[]) => RT;
