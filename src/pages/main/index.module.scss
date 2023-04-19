@@ -1,0 +1,28 @@
+.bottom {
+    background-color: aliceblue;
+    position: absolute;
+    height: 200px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+
+    .pretxt {
+        white-space: pre-wrap;
+
+        // 日志
+        &.pretxt-0 {
+            color: #656161;
+        }
+
+        // 警告
+        &.pretxt-1 {
+            color: #ffb301;
+        }
+
+        // 错误
+        &.pretxt-2 {
+            color: #f12929;
+        }
+    }
+}

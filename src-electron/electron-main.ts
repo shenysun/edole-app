@@ -59,7 +59,7 @@ function createWindow() {
         },
     });
 
-    new ShellAction();
+    new ShellAction(mainWindow);
 
     mainWindow.loadURL(process.env.APP_URL);
 
