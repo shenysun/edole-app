@@ -18,6 +18,10 @@ contextBridge.exposeInMainWorld('shell', {
         return ipcRenderer.invoke(ShellEvent.git, data);
     },
 
+    [ShellEvent.scriptList]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(ShellEvent.scriptList, data);
+    },
+
     [ShellEvent.script]: (data: { command: string; cwd: string }) => {
         return ipcRenderer.invoke(ShellEvent.script, data);
     },

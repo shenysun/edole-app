@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "@quasar/extras": "^1.0.0",
+        "@vueuse/core": "^10.0.2",
         "open-editor": "3",
         "pinia": "^2.0.11",
         "quasar": "^2.6.0",

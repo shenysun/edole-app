@@ -4,6 +4,8 @@ import shelljs from 'shelljs';
 import openEditor from 'open-editor';
 import { ChildProcess } from 'child_process';
 import { simpleGit } from 'simple-git';
+import path from 'path';
+import fs from 'fs';
 
 export default class ShellAction {
     constructor(private mainWindow: BrowserWindow) {
@@ -46,8 +48,10 @@ export default class ShellAction {
                 properties: ['openDirectory', 'createDirectory'],
                 message: '选择打开的项目',
             });
-
-            return ds.filePaths[0];
+            return {
+                projectName: path.basename(ds.filePaths[0]),
+                path: ds.filePaths[0],
+            };
         });
 
         ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch }) => {
@@ -63,6 +67,15 @@ export default class ShellAction {
                     console.log('checkout', branch, b);
                     return b;
                 }
+            } catch (error) {
+                this.mainWindow.webContents.send('stderr', error);
+            }
+        });
+
+        ipcMain.handle(ShellEvent.scriptList, async (e, { cwd }) => {
+            try {
+                const str = await fs.promises.readFile(path.join(cwd, 'package.json'), { encoding: 'utf8' });
+                return JSON.parse(str).scripts;
             } catch (error) {
                 this.mainWindow.webContents.send('stderr', error);
             }
