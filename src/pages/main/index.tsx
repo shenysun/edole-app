@@ -1,7 +1,7 @@
 import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { QBtn } from 'quasar';
+import { QBtn, QSelect } from 'quasar';
 import { ShellEvent, StdEvent } from 'app/src-electron/events/ShellEvent';
-import styles from './index.module.scss';
+import styles from './style/index.module.scss';
 import { LogInfo, LogLevel } from './meta';
 
 export default defineComponent({
@@ -14,6 +14,8 @@ export default defineComponent({
         const projectPath = ref(localStorage.getItem('projectPath') || '');
         const refLog = ref<HTMLDivElement>();
         const logs = ref<LogInfo[]>([]);
+        const branchs = ref<string[]>(['2', '3']);
+        const selectBranch = ref('');
 
         const onDialog = async () => {
             const some = await global.shell.dialog();
@@ -24,12 +26,12 @@ export default defineComponent({
             console.log(some);
         };
 
-        const onPull = async () => {
-            await global.shell.git({ command: 'pulll', cwd: projectPath.value });
-        };
-
         const onRun = () => {
             global.shell.script({ command: 'build:test', cwd: projectPath.value });
+        };
+
+        const onOpenCode = () => {
+            global.shell.open({ cwd: projectPath.value });
         };
 
         const onStdoutHandler = (e: any, chunk: string) => {
@@ -43,6 +45,28 @@ export default defineComponent({
                 message: chunk + '',
                 level: LogLevel.warning,
             });
+        };
+
+        const getAllbranch = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+            const branchInfo = (await global.shell.git({ command: 'branch', cwd: projectPath.value })) as any;
+            if (doneFn) {
+                doneFn(() => {
+                    branchs.value = branchInfo.all;
+                    selectBranch.value = branchInfo.current;
+                });
+            } else {
+                branchs.value = branchInfo.all;
+                selectBranch.value = branchInfo.current;
+            }
+            return branchInfo;
+        };
+
+        const filterBranch = (
+            inputValue: string,
+            doneFn: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void,
+            abortFn: () => void
+        ) => {
+            getAllbranch(doneFn);
         };
 
         watch(
@@ -59,7 +83,19 @@ export default defineComponent({
             }
         );
 
+        watch(selectBranch, (val, pre) => {
+            if (!pre) {
+                return;
+            }
+
+            if (val.startsWith('remotes/origin/')) {
+                val = val.split('remotes/origin/')[1];
+            }
+            global.shell.git({ command: 'checkout', branch: val, cwd: projectPath.value });
+        });
+
         onMounted(() => {
+            getAllbranch();
             global.std.on('stdout', onStdoutHandler);
             global.std.on('stderr', onStderrHandler);
         });
@@ -75,8 +111,15 @@ export default defineComponent({
                 <div>
                     <span>{projectPath.value}</span>
                     <div>
-                        <QBtn onClick={onPull}>git pull</QBtn>
                         <QBtn onClick={onRun}>run build:test</QBtn>
+                        <QBtn onClick={onOpenCode}>open by code</QBtn>
+                        <QSelect
+                            filled
+                            useChips
+                            onFilter={filterBranch}
+                            options={branchs.value}
+                            v-model={selectBranch.value}
+                        ></QSelect>
                     </div>
                 </div>
 

@@ -1,5 +1,6 @@
 export enum ShellEvent {
     test = 'test',
+    open = 'open',
     dialog = 'dialog',
     git = 'git',
     script = 'script',

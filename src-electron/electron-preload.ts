@@ -6,6 +6,10 @@ contextBridge.exposeInMainWorld('shell', {
         return ipcRenderer.invoke(ShellEvent.test);
     },
 
+    [ShellEvent.open]: (data: { cwd: string; editor?: string }) => {
+        return ipcRenderer.invoke(ShellEvent.open, data);
+    },
+
     [ShellEvent.dialog]: () => {
         return ipcRenderer.invoke(ShellEvent.dialog);
     },

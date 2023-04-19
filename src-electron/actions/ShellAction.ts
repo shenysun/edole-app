@@ -3,6 +3,7 @@ import { ShellEvent } from 'app/src-electron/events/ShellEvent';
 import shelljs from 'shelljs';
 import openEditor from 'open-editor';
 import { ChildProcess } from 'child_process';
+import { simpleGit } from 'simple-git';
 
 export default class ShellAction {
     constructor(private mainWindow: BrowserWindow) {
@@ -26,6 +27,19 @@ export default class ShellAction {
             return shelljs.pwd().stdout;
         });
 
+        ipcMain.handle(ShellEvent.open, async (e, { cwd, editor }) => {
+            editor = editor || 'vscode';
+            openEditor(
+                [
+                    {
+                        file: cwd,
+                    },
+                ],
+                { editor }
+            );
+            return shelljs.pwd().stdout;
+        });
+
         ipcMain.handle(ShellEvent.dialog, async () => {
             const ds = await dialog.showOpenDialog({
                 title: '选择项目',
@@ -36,16 +50,22 @@ export default class ShellAction {
             return ds.filePaths[0];
         });
 
-        ipcMain.handle(ShellEvent.git, async (e, { command, cwd }) => {
+        ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch }) => {
             console.log('command', command);
 
-            const process = shelljs.exec(`git ${command}`, {
-                cwd,
-                async: true,
-                silent: true,
-            });
-
-            this.dealStdEvent(process);
+            const gitManager = simpleGit(cwd);
+            try {
+                if (command === 'branch') {
+                    const bs = await gitManager.branch();
+                    return bs;
+                } else if (command === 'checkout') {
+                    const b = await gitManager.checkout(branch);
+                    console.log('checkout', branch, b);
+                    return b;
+                }
+            } catch (error) {
+                this.mainWindow.webContents.send('stderr', error);
+            }
         });
 
         ipcMain.handle(ShellEvent.script, async (e, { command, cwd }) => {
