@@ -1,5 +1,5 @@
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { QBtn, QSelect } from 'quasar';
+import { QBtn, QItem, QList, QMenu, QSelect } from 'quasar';
 import { ShellEvent, StdEvent } from 'app/src-electron/events/ShellEvent';
 import styles from './style/index.module.scss';
 import { LogInfo, LogLevel } from './meta';
@@ -34,8 +34,8 @@ export default defineComponent({
             console.log(some);
         };
 
-        const onRun = () => {
-            global.shell.script({ command: 'build:test', cwd: cwd.value });
+        const onRunScript = (command) => {
+            global.shell.script({ command, cwd: cwd.value });
         };
 
         const onOpenCode = () => {
@@ -85,18 +85,9 @@ export default defineComponent({
 
         const filterBranch = (
             inputValue: string,
-            doneFn: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void,
-            abortFn: () => void
+            doneFn: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void
         ) => {
             getAllbranch(doneFn);
-        };
-
-        const filterScript = (
-            inputValue: string,
-            doneFn: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void,
-            abortFn: () => void
-        ) => {
-            getAllScripts(doneFn);
         };
 
         watch(
@@ -156,7 +147,6 @@ export default defineComponent({
                         {cwd.value}
                     </span>
                     <div>
-                        <QBtn onClick={onRun}>run build:test</QBtn>
                         <QBtn onClick={onOpenCode}>open by code</QBtn>
                         <QSelect
                             filled
@@ -165,18 +155,19 @@ export default defineComponent({
                             options={branchs.value}
                             v-model={selectBranch.value}
                         ></QSelect>
-                        <div style="margin-top: 20px"></div>
-                        <div>
-                            <QSelect
-                                filled
-                                useChips
-                                onFilter={filterScript}
-                                options={scripts.value}
-                                v-model={selectScript.value}
-                            ></QSelect>
-                            <QBtn>执行脚本</QBtn>
-                        </div>
                     </div>
+                    <div style="margin-top: 20px"></div>
+                    <QBtn style="width: 180px;" label="执行脚本" color="primary">
+                        <QMenu fit autoClose>
+                            <QList>
+                                {scripts.value.map((s) => (
+                                    <QItem clickable key={s} onClick={() => onRunScript(s)}>
+                                        {s}
+                                    </QItem>
+                                ))}
+                            </QList>
+                        </QMenu>
+                    </QBtn>
                 </div>
 
                 <div class={styles.bottom} ref={refLog}>
