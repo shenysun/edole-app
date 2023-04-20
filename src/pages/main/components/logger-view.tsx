@@ -2,6 +2,7 @@ import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import styles from '../style/logger.module.scss';
 import { LogInfo, LogLevel } from '../meta';
 import { electronExpose } from 'src/common/expose';
+import toast from 'src/common/toast';
 
 export default defineComponent({
     name: 'logger-view',
@@ -22,6 +23,10 @@ export default defineComponent({
             });
         };
 
+        const onStdexitHandler = (e: unknown, { command, projectName }: { command: string; projectName: string }) => {
+            toast.show(`${projectName} 脚本 ${command} 执行完毕`, 'done');
+        };
+
         watch(
             () => logs.value.length,
             () => {
@@ -39,11 +44,13 @@ export default defineComponent({
         onMounted(() => {
             electronExpose.std.on('stdout', onStdoutHandler);
             electronExpose.std.on('stderr', onStderrHandler);
+            electronExpose.std.on('stdexit', onStdexitHandler);
         });
 
         onBeforeUnmount(() => {
             electronExpose.std.off('stdout', onStdoutHandler);
             electronExpose.std.off('stderr', onStderrHandler);
+            electronExpose.std.off('stdexit', onStdexitHandler);
         });
 
         return () => (

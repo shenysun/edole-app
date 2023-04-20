@@ -27,11 +27,11 @@ export const ShellExpose = {
 };
 
 export const Std = {
-    [StdEvent.on]: (type: 'stdout' | 'stderr', callback: CommonFunction) => {
+    [StdEvent.on]: (type: 'stdout' | 'stderr' | 'stdexit', callback: CommonFunction) => {
         ipcRenderer.on(type, callback);
     },
 
-    [StdEvent.off]: (type: 'stdout' | 'stderr', callback: CommonFunction) => {
+    [StdEvent.off]: (type: 'stdout' | 'stderr' | 'stdexit', callback: CommonFunction) => {
         return ipcRenderer.off(type, callback);
     },
 };

@@ -88,11 +88,12 @@ export default class ShellAction {
                 silent: true,
             });
 
-            this.dealStdEvent(process);
+            const projectName = path.basename(cwd);
+            this.dealStdEvent(process, { command, projectName });
         });
     }
 
-    dealStdEvent(process: ChildProcess) {
+    dealStdEvent(process: ChildProcess, { command, projectName }: { command: string; projectName: string }) {
         const { stdout, stderr } = process;
         const onStdOut = (chunk: unknown) => {
             this.mainWindow.webContents.send('stdout', chunk);
@@ -106,6 +107,7 @@ export default class ShellAction {
         stderr?.on('data', onStdErr);
 
         process.once('exit', () => {
+            this.mainWindow.webContents.send('stdexit', { command, projectName });
             stderr?.off('data', onStdOut);
             stderr?.off('data', onStdErr);
         });
