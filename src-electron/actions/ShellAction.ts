@@ -2,6 +2,7 @@ import { BrowserWindow, dialog, ipcMain } from 'electron';
 import { ShellEvent } from 'app/src-electron/events/ShellEvent';
 import shelljs from 'shelljs';
 import openEditor from 'open-editor';
+import open from 'open';
 import { ChildProcess } from 'child_process';
 import { simpleGit } from 'simple-git';
 import path from 'path';
@@ -29,7 +30,7 @@ export default class ShellAction {
             return shelljs.pwd().stdout;
         });
 
-        ipcMain.handle(ShellEvent.open, async (e, { cwd, editor }) => {
+        ipcMain.handle(ShellEvent.openEditor, async (e, { cwd, editor }) => {
             editor = editor || 'vscode';
             openEditor(
                 [
@@ -39,6 +40,11 @@ export default class ShellAction {
                 ],
                 { editor }
             );
+            return shelljs.pwd().stdout;
+        });
+
+        ipcMain.handle(ShellEvent.open, async (e, { cwd }) => {
+            open(cwd);
             return shelljs.pwd().stdout;
         });
 

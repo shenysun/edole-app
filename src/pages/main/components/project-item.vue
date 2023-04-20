@@ -1,6 +1,10 @@
 <template>
     <div class="project-item">
-        <QSlideItem rightColor="red" @right="({ reset }) => onDeleteItem(props.info, reset)">
+        <QSlideItem
+            rightColor="grey-7"
+            @right="({ reset }) => onDeleteItem(props.info, reset)"
+            @click="onOpenFileClick"
+        >
             <template v-slot:right>
                 <QIcon name="done"></QIcon>
             </template>
@@ -57,6 +61,10 @@ const branchInfo = computed(() => store.getBranchInfo(projectName.value));
 const scripts = computed(() => store.getScripts(projectName.value));
 
 const onOpenClick = async () => {
+    electronExpose.shell.openEditor({ cwd: cwd.value });
+};
+
+const onOpenFileClick = () => {
     electronExpose.shell.open({ cwd: cwd.value });
 };
 
@@ -198,10 +206,6 @@ watch(
                     min-height: 40px;
                 }
             }
-            // :deep(.q-field__marginal) {
-            //     height: 36px;
-            // }
-            // }
         }
     }
 }

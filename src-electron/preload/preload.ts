@@ -5,7 +5,11 @@ export const ShellExpose = {
         return ipcRenderer.invoke(ShellEvent.test);
     },
 
-    [ShellEvent.open]: (data: { cwd: string; editor?: string }) => {
+    [ShellEvent.openEditor]: (data: { cwd: string; editor?: string }) => {
+        return ipcRenderer.invoke(ShellEvent.openEditor, data);
+    },
+
+    [ShellEvent.open]: (data: { cwd: string }) => {
         return ipcRenderer.invoke(ShellEvent.open, data);
     },
 

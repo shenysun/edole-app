@@ -2,8 +2,8 @@
     <div class="project-view">
         <header class="project-header">
             <span class="project-title">项目</span>
-            <QBtn class="project-add" label="添加项目" @click="onAddClick"></QBtn>
-            <QBtn class="project-script" label="批量执行脚本" @click="onBatchScriptClick"></QBtn>
+            <QBtn class="project-add" color="teal" label="添加项目" @click="onAddClick"></QBtn>
+            <QBtn class="project-script" color="red-6" label="批量执行脚本" @click="onBatchScriptClick"></QBtn>
         </header>
         <QSeparator style="margin: 20px 0"></QSeparator>
         <div class="project-item-wrapper">
@@ -25,12 +25,12 @@
 
                 <QCardSection class="dialog-content">
                     <div v-for="projectName in [...scriptsMap.keys()]" :key="projectName" class="dialog-content-item">
-                        <span class="dialog-project-name">{projectName}</span>
+                        <span class="dialog-project-name">{{ projectName }}</span>
                         <QSelect
                             v-model="scriptSelectInfo[projectName]"
                             class="dialog-project-scripts"
                             filled
-                            :options="scriptsMap.get(projectName)"
+                            :options="scriptOptions(projectName)"
                         ></QSelect>
                     </div>
                 </QCardSection>
@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, computed } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
 import { Loading, QBtn, QCard, QCardSection, QDialog, QSelect, QSeparator, QSpace } from 'quasar';
@@ -53,10 +53,15 @@ import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
 
+const noneScript = '不执行脚本';
 const store = useProjectStore();
 const { projectList, scriptsMap, scriptLatest } = storeToRefs(store);
 const scriptSelectInfo = reactive<Record<string, string>>({});
 const showScripts = ref(false);
+const scriptOptions = computed(() => (projectName: string) => [
+    noneScript,
+    ...(scriptsMap.value.get(projectName) || []),
+]);
 
 const onAddClick = async () => {
     const projectInfoList = await electronExpose.shell.dialog();
@@ -86,11 +91,13 @@ const onBatchActionClick = async () => {
         const cwd = store.getProjectCwd(projectName);
         if (cwd) {
             const command = scriptSelectInfo[projectName];
-            store.setScriptLatest(projectName, command);
-            list.push({
-                cwd,
-                command,
-            });
+            if (command && command !== noneScript) {
+                store.setScriptLatest(projectName, command);
+                list.push({
+                    cwd,
+                    command,
+                });
+            }
         }
     });
 
@@ -118,9 +125,11 @@ const onDeleteItem = (info: ProjectInfo) => {
 watch(
     scriptLatest,
     (val) => {
-        if (val) {
-            Object.assign(scriptSelectInfo, val);
+        const temp: Record<string, string> = {};
+        for (const info of projectList.value) {
+            temp[info.projectName] = noneScript;
         }
+        Object.assign(scriptSelectInfo, temp, val);
     },
     {
         immediate: true,
@@ -171,6 +180,16 @@ watch(
 
         .dialog-project-scripts {
             width: 250px;
+            :deep(.q-field__inner) {
+                .q-field__marginal {
+                    height: 40px;
+                }
+
+                .q-field__control,
+                .q-field__native {
+                    min-height: 40px;
+                }
+            }
         }
     }
 }
