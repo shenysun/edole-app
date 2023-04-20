@@ -123,8 +123,9 @@ export default defineComponent({
                         </QCardSection>
 
                         <QCardSection class={style['dialog-content']}>{renderScripts()}</QCardSection>
+                        <QSeparator></QSeparator>
                         <QCardSection class={style['dialog-actions']}>
-                            <QBtn label="批量执行" onClick={onBatchActionClick}></QBtn>
+                            <QBtn color="secondary" label="批量执行" onClick={onBatchActionClick}></QBtn>
                         </QCardSection>
                     </QCard>
                 </QDialog>
