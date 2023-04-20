@@ -3,11 +3,11 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
     {
         path: '/:catchAll(.*)*',
-        component: () => import('pages/error/index'),
+        component: () => import('pages/error/index.vue'),
     },
     {
         path: '/',
-        component: () => import('pages/main/index'),
+        component: () => import('pages/main/index.vue'),
     },
 ];
 

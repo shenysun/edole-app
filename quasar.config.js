@@ -9,7 +9,6 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require('quasar/wrappers');
-const vueJsx = require('@vitejs/plugin-vue-jsx');
 
 module.exports = configure(function (/* ctx */) {
     return {
@@ -70,9 +69,7 @@ module.exports = configure(function (/* ctx */) {
             // polyfillModulePreload: true,
             // distDir
 
-            extendViteConf(viteConf) {
-                viteConf.plugins.push(vueJsx());
-            },
+            // extendViteConf(viteConf) {},
             // viteVuePluginOptions: {},
 
             // vitePlugins: [
