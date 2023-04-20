@@ -12,7 +12,7 @@ export default defineComponent({
     name: 'project-view',
     setup() {
         const store = useProjectStore();
-        const { projectList, scriptsMap } = storeToRefs(store);
+        const { projectList, scriptsMap, scriptLatest } = storeToRefs(store);
         const scriptSelectInfo = reactive<Record<string, string>>({});
         const showScripts = ref(false);
 
@@ -43,9 +43,11 @@ export default defineComponent({
             projectNames.forEach((projectName) => {
                 const cwd = store.getProjectCwd(projectName);
                 if (cwd) {
+                    const command = scriptSelectInfo[projectName];
+                    store.setScriptLatest(projectName, command);
                     list.push({
                         cwd,
-                        command: scriptSelectInfo[projectName],
+                        command,
                     });
                 }
             });
@@ -87,16 +89,14 @@ export default defineComponent({
         };
 
         watch(
-            () => {
-                const keys = [...scriptsMap.value.keys()];
-                return keys.length === projectList.value.length;
-            },
+            scriptLatest,
             (val) => {
                 if (val) {
-                    for (const projectName of scriptsMap.value.keys()) {
-                        scriptSelectInfo[projectName] = scriptsMap.value.get(projectName)?.[0] || '';
-                    }
+                    Object.assign(scriptSelectInfo, val);
                 }
+            },
+            {
+                immediate: true,
             }
         );
 

@@ -65,8 +65,9 @@ export default defineComponent({
 
         const onRunScript = async (command: string) => {
             try {
-                const { projectName } = await electronExpose.shell.script({ command, cwd: cwd.value });
-                toast.show(`${projectName}执行脚本${command} 成功`, 'done');
+                store.setScriptLatest(projectName.value, command);
+                const { projectName: pn } = await electronExpose.shell.script({ command, cwd: cwd.value });
+                toast.show(`${pn}执行脚本${command} 成功`, 'done');
             } catch (error) {
                 console.log('error', error);
 

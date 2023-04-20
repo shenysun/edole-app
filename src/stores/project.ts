@@ -4,8 +4,10 @@ import { BranchInfo, ProjectInfo } from 'src/pages/main/meta';
 import { computed, reactive, Ref, ref, unref } from 'vue';
 
 const projectsInfoKey = 'projectsInfo';
+const scriptLatestKey = 'scriptLatest';
 export const useProjectStore = defineStore('project', () => {
     const projectList = useLocalStorage<ProjectInfo[]>(projectsInfoKey, ref([]));
+    const scriptLatest = useLocalStorage<Record<string, string>>(scriptLatestKey, ref({}));
     const branchInfoMap = reactive<Map<string, BranchInfo>>(new Map());
     const scriptsMap = reactive<Map<string, string[]>>(new Map());
 
@@ -27,6 +29,11 @@ export const useProjectStore = defineStore('project', () => {
         scriptsMap.set(key, scripts);
     };
 
+    const setScriptLatest = (projectName: string | Ref<string>, script: string) => {
+        const key = unref(projectName);
+        scriptLatest.value[key] = script;
+    };
+
     const getBranchInfo = computed(() => {
         return (projectName: string) => {
             return branchInfoMap.get(projectName);
@@ -46,10 +53,12 @@ export const useProjectStore = defineStore('project', () => {
     return {
         projectList,
         scriptsMap,
+        scriptLatest,
         getBranchInfo,
         getScripts,
         setBranchInfo,
         setScripts,
+        setScriptLatest,
         getProjectCwd,
     };
 });
