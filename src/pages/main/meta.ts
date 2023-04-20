@@ -14,3 +14,19 @@ export type LogInfo = {
     message: string;
     level?: LogLevel;
 };
+
+/**
+ * 工程项目信息
+ */
+export type ProjectInfo = {
+    path: string;
+    projectName: string;
+};
+
+/**
+ * 工程分支信息
+ */
+export type BranchInfo = {
+    all: string[];
+    current: string;
+};

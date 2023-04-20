@@ -45,18 +45,19 @@ export default class ShellAction {
         ipcMain.handle(ShellEvent.dialog, async () => {
             const ds = await dialog.showOpenDialog({
                 title: '选择项目',
-                properties: ['openDirectory', 'createDirectory'],
+                properties: ['openDirectory', 'createDirectory', 'multiSelections'],
                 message: '选择打开的项目',
             });
-            return {
-                projectName: path.basename(ds.filePaths[0]),
-                path: ds.filePaths[0],
-            };
+
+            return ds.filePaths.map((item) => {
+                return {
+                    projectName: path.basename(item),
+                    path: item,
+                };
+            });
         });
 
         ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch }) => {
-            console.log('command', command);
-
             const gitManager = simpleGit(cwd);
             try {
                 if (command === 'branch') {
@@ -64,7 +65,6 @@ export default class ShellAction {
                     return bs;
                 } else if (command === 'checkout') {
                     const b = await gitManager.checkout(branch);
-                    console.log('checkout', branch, b);
                     return b;
                 }
             } catch (error) {

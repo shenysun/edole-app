@@ -1,0 +1,56 @@
+.project-view {
+    padding: 30px 20px 0;
+}
+
+.project-header {
+    display: flex;
+    align-items: center;
+
+    .project-title {
+        font-size: 28px;
+    }
+
+    .project-add {
+        margin-left: auto;
+    }
+}
+
+.project-item-wrapper {
+    .project-item {
+        display: flex;
+        align-items: center;
+
+        .project-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 30%;
+            min-width: 0;
+
+            .project-name {
+                font-size: 20px;
+            }
+
+            .project-path,
+            .project-name {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .project-actions {
+            flex: 1 1 70%;
+            display: flex;
+            gap: 2%;
+            align-items: center;
+
+            & > *:first-child {
+                margin-left: auto;
+            }
+
+            .project-actions-select {
+                width: 250px;
+            }
+        }
+    }
+}
