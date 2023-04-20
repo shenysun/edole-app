@@ -89,27 +89,54 @@ export default class ShellAction {
             });
 
             const projectName = path.basename(cwd);
-            this.dealStdEvent(process, { command, projectName });
+            const res = await this.dealStdEvent(process, { command, projectName });
+            return res;
+        });
+
+        ipcMain.handle(ShellEvent.batchScript, async (e, list: { command: string; cwd: string }[]) => {
+            const promiseList = list.map((info) => {
+                const { command, cwd } = info;
+                const process = shelljs.exec(`npm run ${command}`, {
+                    cwd,
+                    async: true,
+                    silent: true,
+                });
+                const projectName = path.basename(cwd);
+                return this.dealStdEvent(process, { command, projectName });
+            });
+
+            const ress = await Promise.all(promiseList);
+            return ress;
         });
     }
 
     dealStdEvent(process: ChildProcess, { command, projectName }: { command: string; projectName: string }) {
-        const { stdout, stderr } = process;
-        const onStdOut = (chunk: unknown) => {
-            this.mainWindow.webContents.send('stdout', chunk);
-        };
+        return new Promise((resolve, reject) => {
+            const { stdout, stderr } = process;
+            const onStdOut = (chunk: unknown) => {
+                this.mainWindow.webContents.send('stdout', chunk);
+            };
 
-        const onStdErr = (chunk: unknown) => {
-            this.mainWindow.webContents.send('stderr', chunk);
-        };
+            const onStdErr = (chunk: unknown) => {
+                this.mainWindow.webContents.send('stderr', chunk);
+            };
 
-        stdout?.on('data', onStdOut);
-        stderr?.on('data', onStdErr);
+            stdout?.on('data', onStdOut);
+            stderr?.on('data', onStdErr);
 
-        process.once('exit', () => {
-            this.mainWindow.webContents.send('stdexit', { command, projectName });
-            stderr?.off('data', onStdOut);
-            stderr?.off('data', onStdErr);
+            process.once('exit', (code) => {
+                stderr?.off('data', onStdOut);
+                stderr?.off('data', onStdErr);
+                if (code === 0) {
+                    resolve({ command, projectName });
+                } else {
+                    reject(code);
+                }
+            });
+
+            process.once('error', (reason) => {
+                reject(reason);
+            });
         });
     }
 }

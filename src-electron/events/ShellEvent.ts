@@ -5,6 +5,7 @@ export enum ShellEvent {
     git = 'git',
     scriptList = 'scriptList',
     script = 'script',
+    batchScript = 'batchScript',
 }
 
 export enum StdEvent {

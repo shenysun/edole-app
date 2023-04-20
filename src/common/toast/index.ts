@@ -8,7 +8,7 @@ class Toast {
         return Notify.create({
             message,
             position: 'top',
-            timeout: 2000,
+            timeout: 4000,
             icon,
             iconSize: '20px',
             iconColor,

@@ -1,8 +1,9 @@
 import { Dialog, QBtn, QIcon, QItem, QList, QMenu, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
-import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue';
-import { BranchInfo, ProjectInfo } from '../meta';
+import { useProjectStore } from 'src/stores/project';
+import { computed, defineComponent, PropType, watch } from 'vue';
+import { ProjectInfo } from '../meta';
 import style from '../style/project.module.scss';
 
 export default defineComponent({
@@ -15,9 +16,11 @@ export default defineComponent({
     },
     emits: ['delete'],
     setup(props, { emit }) {
+        const store = useProjectStore();
         const cwd = computed(() => props.info.path);
-        const branchInfo = reactive<BranchInfo>({ all: [], current: '' });
-        const scripts = ref<string[]>([]);
+        const projectName = computed(() => props.info.projectName);
+        const branchInfo = computed(() => store.getBranchInfo(projectName.value));
+        const scripts = computed(() => store.getScripts(projectName.value));
 
         const onOpenClick = async () => {
             electronExpose.shell.open({ cwd: cwd.value });
@@ -31,12 +34,10 @@ export default defineComponent({
             const info = await electronExpose.shell.git({ command: 'branch', cwd: cwd.value });
             if (doneFn) {
                 doneFn(() => {
-                    branchInfo.all = info.all;
-                    branchInfo.current = info.current;
+                    store.setBranchInfo(projectName, info);
                 });
             } else {
-                branchInfo.all = info.all;
-                branchInfo.current = info.current;
+                store.setBranchInfo(projectName, info);
             }
         };
 
@@ -55,15 +56,22 @@ export default defineComponent({
             const tempList = Object.keys(scriptDict);
             if (doneFn) {
                 doneFn(() => {
-                    scripts.value = tempList;
+                    store.setScripts(projectName, tempList);
                 });
             } else {
-                scripts.value = tempList;
+                store.setScripts(projectName, tempList);
             }
         };
 
-        const onRunScript = (command: string) => {
-            electronExpose.shell.script({ command, cwd: cwd.value });
+        const onRunScript = async (command: string) => {
+            try {
+                const { projectName } = await electronExpose.shell.script({ command, cwd: cwd.value });
+                toast.show(`${projectName}执行脚本${command} 成功`, 'done');
+            } catch (error) {
+                console.log('error', error);
+
+                toast.show(`${projectName.value}执行脚本${command} 失败 ${error}`, 'error');
+            }
         };
 
         /**
@@ -83,9 +91,9 @@ export default defineComponent({
         };
 
         watch(
-            () => branchInfo.current,
+            () => branchInfo.value?.current,
             (val, pre) => {
-                if (!pre) {
+                if (!pre || !val) {
                     return;
                 }
 
@@ -130,18 +138,22 @@ export default defineComponent({
                         }}
                     </QSlideItem>
                     <div class={style['project-actions']}>
-                        <QSelect
-                            class={style['project-actions-select']}
-                            filled
-                            onFilter={(_input, doneFn) => getAllbranch(doneFn)}
-                            options={branchInfo.all}
-                            v-model={branchInfo.current}
-                        ></QSelect>
+                        {branchInfo.value ? (
+                            <QSelect
+                                class={style['project-actions-select']}
+                                filled
+                                onFilter={(_input, doneFn) => getAllbranch(doneFn)}
+                                options={branchInfo.value.all}
+                                v-model={branchInfo.value.current}
+                            ></QSelect>
+                        ) : (
+                            ''
+                        )}
                         <QBtn color="primary" icon="code" label="打开" onClick={onOpenClick}></QBtn>
                         <QBtn color="primary" icon="task" label="执行脚本">
                             <QMenu fit autoClose>
                                 <QList>
-                                    {scripts.value.map((s) => (
+                                    {scripts.value?.map((s) => (
                                         <QItem clickable key={s} onClick={() => onRunScript(s)}>
                                             {s}
                                         </QItem>

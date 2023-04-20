@@ -1,18 +1,20 @@
-import { useLocalStorage } from '@vueuse/core';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, reactive, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item';
 import style from '../style/project.module.scss';
-import { QBtn, QCard, QCardSection, QDialog, QSeparator, QSpace } from 'quasar';
+import { Loading, QBtn, QCard, QCardSection, QDialog, QSelect, QSeparator, QSpace } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
-const projectsInfoKey = 'projectsInfo';
+import { useProjectStore } from 'src/stores/project';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
     name: 'project-view',
     setup() {
-        const projectList = useLocalStorage<ProjectInfo[]>(projectsInfoKey, ref([]));
-        const icon = ref(false);
+        const store = useProjectStore();
+        const { projectList, scriptsMap } = storeToRefs(store);
+        const scriptSelectInfo = reactive<Record<string, string>>({});
+        const showScripts = ref(false);
 
         const onAddClick = async () => {
             const projectInfoList = await electronExpose.shell.dialog();
@@ -32,14 +34,71 @@ export default defineComponent({
         };
 
         const onBatchScriptClick = () => {
-            console.log('批量执行脚本');
-            icon.value = true;
+            showScripts.value = true;
+        };
+
+        const onBatchActionClick = async () => {
+            const projectNames = Object.keys(scriptSelectInfo);
+            const list: Array<{ cwd: string; command: string }> = [];
+            projectNames.forEach((projectName) => {
+                const cwd = store.getProjectCwd(projectName);
+                if (cwd) {
+                    list.push({
+                        cwd,
+                        command: scriptSelectInfo[projectName],
+                    });
+                }
+            });
+
+            Loading.show({
+                message: '批量执行脚本中',
+            });
+
+            try {
+                await electronExpose.shell.batchScript(list);
+                toast.show('批量脚本执行完毕', 'done');
+            } catch (error) {
+                toast.show('批量脚本执行有错误', 'error');
+            } finally {
+                Loading.hide();
+            }
         };
 
         const onDeleteItem = (info: ProjectInfo) => {
             const itemIndex = projectList.value.findIndex((item) => item.path === info.path);
             projectList.value.splice(itemIndex, 1);
+            store.setBranchInfo(info.projectName);
+            store.setScripts(info.projectName);
         };
+
+        const renderScripts = () => {
+            const projectNames = [...scriptsMap.value.keys()];
+            return projectNames.map((projectName) => (
+                <div class={style['dialog-content-item']}>
+                    <span class={style['dialog-project-name']}>{projectName}</span>
+                    <QSelect
+                        class={style['dialog-project-scripts']}
+                        filled
+                        options={scriptsMap.value.get(projectName)}
+                        v-model={scriptSelectInfo[projectName]}
+                    ></QSelect>
+                </div>
+            ));
+        };
+
+        watch(
+            () => {
+                const keys = [...scriptsMap.value.keys()];
+                return keys.length === projectList.value.length;
+            },
+            (val) => {
+                if (val) {
+                    for (const projectName of scriptsMap.value.keys()) {
+                        scriptSelectInfo[projectName] = scriptsMap.value.get(projectName)?.[0] || '';
+                    }
+                }
+            }
+        );
 
         return () => (
             <div class={style['project-view']}>
@@ -55,7 +114,7 @@ export default defineComponent({
                     ))}
                 </div>
 
-                <QDialog v-model={icon.value}>
+                <QDialog v-model={showScripts.value}>
                     <QCard>
                         <QCardSection class="row items-center q-pb-none">
                             <div class="text-h6">批量执行脚本</div>
@@ -63,10 +122,9 @@ export default defineComponent({
                             <QBtn icon="close" flat round dense v-close-popup />
                         </QCardSection>
 
-                        <QCardSection>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum repellendus sit voluptate
-                            voluptas eveniet porro. Rerum blanditiis perferendis totam, ea at omnis vel numquam
-                            exercitationem aut, natus minima, porro labore.
+                        <QCardSection class={style['dialog-content']}>{renderScripts()}</QCardSection>
+                        <QCardSection class={style['dialog-actions']}>
+                            <QBtn label="批量执行" onClick={onBatchActionClick}></QBtn>
                         </QCardSection>
                     </QCard>
                 </QDialog>

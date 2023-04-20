@@ -58,3 +58,23 @@
         }
     }
 }
+
+.dialog-content {
+    height: 70vh;
+    overflow: auto;
+
+    .dialog-content-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+
+        .dialog-project-name {
+            text-align: left;
+            flex: 0 0 300px;
+        }
+
+        .dialog-project-scripts {
+            width: 250px;
+        }
+    }
+}
