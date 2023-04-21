@@ -16,6 +16,14 @@ export type LogInfo = {
 };
 
 /**
+ * 工程组信息
+ */
+export type GroupInfo = {
+    groupName: string;
+    projects: ProjectInfo[];
+};
+
+/**
  * 工程项目信息
  */
 export type ProjectInfo = {

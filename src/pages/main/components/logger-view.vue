@@ -1,5 +1,6 @@
 <template>
     <div class="logger-view" ref="refLog">
+        <div class="text-grey-8">终端日志</div>
         <pre v-for="log in logs" :class="['pretxt', `pretxt-${log.level ?? 0}`]" :key="log.message">
             {{ log.message }}
         </pre>

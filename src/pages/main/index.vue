@@ -26,7 +26,7 @@ onMounted(async () => {
 .manager {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - 30px);
 
     .project-view {
         min-height: 0;

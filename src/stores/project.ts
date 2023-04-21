@@ -1,13 +1,10 @@
 import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { BranchInfo, ProjectInfo } from 'src/pages/main/meta';
+import { BranchInfo } from 'src/pages/main/meta';
 import { computed, reactive, Ref, ref, unref } from 'vue';
 
-const projectsInfoKey = 'projectsInfo';
 const scriptLatestKey = 'scriptLatest';
-
 export const useProjectStore = defineStore('project', () => {
-    const projectList = useLocalStorage<ProjectInfo[]>(projectsInfoKey, ref([]));
     const scriptLatest = useLocalStorage<Record<string, string>>(scriptLatestKey, ref({}));
     const branchInfoMap = reactive<Map<string, BranchInfo>>(new Map());
     const scriptsMap = reactive<Map<string, string[]>>(new Map());
@@ -47,12 +44,7 @@ export const useProjectStore = defineStore('project', () => {
         };
     });
 
-    const getProjectCwd = (projectName: string) => {
-        return projectList.value.find((info) => info.projectName === projectName)?.path;
-    };
-
     return {
-        projectList,
         scriptsMap,
         scriptLatest,
         getBranchInfo,
@@ -60,6 +52,5 @@ export const useProjectStore = defineStore('project', () => {
         setBranchInfo,
         setScripts,
         setScriptLatest,
-        getProjectCwd,
     };
 });

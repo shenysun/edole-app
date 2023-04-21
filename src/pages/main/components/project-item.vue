@@ -1,6 +1,6 @@
 <template>
     <div class="project-item">
-        <q-slideItem
+        <q-slide-item
             rightColor="grey-7"
             @right="({ reset }) => onDeleteItem(props.info, reset)"
             @click="onOpenFileClick"
@@ -18,7 +18,7 @@
                     <q-tooltip>{{ props.info.path }}</q-tooltip>
                 </span>
             </div>
-        </q-slideItem>
+        </q-slide-item>
         <div class="project-actions">
             <q-select
                 v-if="branchInfo"
@@ -168,7 +168,7 @@ watch(
     .project-info {
         display: flex;
         flex-direction: column;
-        flex: 1 1 30%;
+        flex: 1 1 auto;
         min-width: 0;
 
         .project-name {
@@ -184,7 +184,8 @@ watch(
     }
 
     .project-actions {
-        flex: 1 1 70%;
+        flex: 1 0 auto;
+        margin-left: 5%;
         display: flex;
         gap: 10px;
         align-items: center;
