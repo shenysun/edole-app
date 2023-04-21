@@ -2,25 +2,25 @@
     <div class="project-view">
         <header class="project-header">
             <span class="project-title">项目</span>
-            <QBtn class="project-add" color="teal" label="添加项目" @click="onAddClick"></QBtn>
-            <QBtn class="project-script" color="red-6" label="批量执行脚本" @click="onBatchScriptClick"></QBtn>
+            <q-btn class="project-add" color="teal" label="添加项目" @click="onAddClick"></q-btn>
+            <q-btn class="project-script" color="red-6" label="批量执行脚本" @click="onBatchScriptClick"></q-btn>
         </header>
-        <QSeparator style="margin: 20px 0"></QSeparator>
+        <q-separator style="margin: 20px 0"></q-separator>
         <div class="project-item-wrapper">
-            <ProjectItem
+            <project-item
                 v-for="info in projectList"
                 :key="info.projectName"
                 @delete="onDeleteItem"
                 :info="info"
-            ></ProjectItem>
+            ></project-item>
         </div>
 
-        <QDialog v-model="showScripts">
-            <QCard>
-                <QCardSection class="row items-center q-pb-none">
+        <q-dialog v-model="showScripts">
+            <q-card>
+                <q-card-section class="row items-center q-pb-none">
                     <div class="text-h6">批量执行脚本</div>
-                    <QSpace />
-                    <QBtnDropdown outline auto-close label="一键配置">
+                    <q-space />
+                    <q-btn-dropdown outline auto-close label="一键配置">
                         <q-list>
                             <q-item clickable @click="onAutoPackClick('test')">
                                 <q-item-section>
@@ -34,28 +34,28 @@
                                 </q-item-section>
                             </q-item>
                         </q-list>
-                    </QBtnDropdown>
-                    <QSpace />
-                    <QBtn icon="close" flat round dense v-close-popup />
-                </QCardSection>
+                    </q-btn-dropdown>
+                    <q-space />
+                    <q-btn icon="close" flat round dense v-close-popup />
+                </q-card-section>
 
-                <QCardSection class="dialog-content">
+                <q-card-section class="dialog-content">
                     <div v-for="projectName in [...scriptsMap.keys()]" :key="projectName" class="dialog-content-item">
                         <span class="dialog-project-name">{{ projectName }}</span>
-                        <QSelect
+                        <q-select
                             v-model="scriptSelectInfo[projectName]"
                             class="dialog-project-scripts"
                             filled
                             :options="scriptOptions(projectName)"
-                        ></QSelect>
+                        ></q-select>
                     </div>
-                </QCardSection>
-                <QSeparator></QSeparator>
-                <QCardSection class="dialog-actions">
-                    <QBtn color="secondary" label="批量执行" @click="onBatchActionClick"></QBtn>
-                </QCardSection>
-            </QCard>
-        </QDialog>
+                </q-card-section>
+                <q-separator></q-separator>
+                <q-card-section class="dialog-actions">
+                    <q-btn color="secondary" label="批量执行" @click="onBatchActionClick"></q-btn>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
     </div>
 </template>
 

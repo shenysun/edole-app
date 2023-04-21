@@ -1,26 +1,26 @@
 <template>
     <div class="project-item">
-        <QSlideItem
+        <q-slideItem
             rightColor="grey-7"
             @right="({ reset }) => onDeleteItem(props.info, reset)"
             @click="onOpenFileClick"
         >
             <template v-slot:right>
-                <QIcon name="done"></QIcon>
+                <q-icon name="done"></q-icon>
             </template>
             <div class="project-info">
                 <span class="project-name">
                     {{ props.info.projectName }}
-                    <QTooltip>{{ props.info.projectName }}</QTooltip>
+                    <q-tooltip>{{ props.info.projectName }}</q-tooltip>
                 </span>
                 <span class="project-path">
                     项目路径： {{ props.info.path }}
-                    <QTooltip>{{ props.info.path }}</QTooltip>
+                    <q-tooltip>{{ props.info.path }}</q-tooltip>
                 </span>
             </div>
-        </QSlideItem>
+        </q-slideItem>
         <div class="project-actions">
-            <QSelect
+            <q-select
                 v-if="branchInfo"
                 v-model="branchInfo.current"
                 class="project-actions-select"
@@ -29,23 +29,23 @@
                 :options="branchInfo.all"
                 menu-self="top middle"
                 menu-anchor="bottom middle"
-            ></QSelect>
+            ></q-select>
 
-            <QBtn color="primary" icon="code" label="打开" @click="onOpenClick"></QBtn>
-            <QBtn color="primary" icon="task" label="执行脚本">
-                <QMenu fit autoClose>
-                    <QList>
-                        <QItem v-for="s in scripts" :key="s" clickable @click="onRunScript(s)"> {{ s }} </QItem>
-                    </QList>
-                </QMenu>
-            </QBtn>
+            <q-btn color="primary" icon="code" label="打开" @click="onOpenClick"></q-btn>
+            <q-btn color="primary" icon="task" label="执行脚本">
+                <q-menu fit autoClose>
+                    <q-list>
+                        <q-item v-for="s in scripts" :key="s" clickable @click="onRunScript(s)"> {{ s }} </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
         </div>
     </div>
-    <QSeparator style="margin: 10px 0"></QSeparator>
+    <q-separator style="margin: 10px 0"></q-separator>
 </template>
 
 <script lang="ts" setup>
-import { Dialog, QBtn, QIcon, QItem, QList, QMenu, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
+import { Dialog, QBtn, QIcon, QItem, QList, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';

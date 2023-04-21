@@ -1,8 +1,8 @@
 <template>
     <div class="manager">
-        <ProjectView></ProjectView>
-        <QSeparator></QSeparator>
-        <LoggerView></LoggerView>
+        <project-view></project-view>
+        <q-separator></q-separator>
+        <logger-view></logger-view>
     </div>
 </template>
 
