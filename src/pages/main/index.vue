@@ -8,8 +8,18 @@
 
 <script lang="ts" setup>
 import { QSeparator } from 'quasar';
+import { electronExpose } from 'src/common/expose';
+import { useOSStore } from 'src/stores/os';
+import { onMounted } from 'vue';
 import LoggerView from './components/logger-view.vue';
 import ProjectView from './components/project-view.vue';
+
+const os = useOSStore();
+
+onMounted(async () => {
+    const { platform } = await electronExpose.shell.init();
+    os.setPlatform(platform);
+});
 </script>
 
 <style lang="scss" scoped>

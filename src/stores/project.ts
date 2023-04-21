@@ -5,6 +5,7 @@ import { computed, reactive, Ref, ref, unref } from 'vue';
 
 const projectsInfoKey = 'projectsInfo';
 const scriptLatestKey = 'scriptLatest';
+
 export const useProjectStore = defineStore('project', () => {
     const projectList = useLocalStorage<ProjectInfo[]>(projectsInfoKey, ref([]));
     const scriptLatest = useLocalStorage<Record<string, string>>(scriptLatestKey, ref({}));

@@ -1,5 +1,5 @@
 export enum ShellEvent {
-    test = 'test',
+    init = 'init',
     open = 'open',
     openEditor = 'openEditor',
     dialog = 'dialog',

@@ -30,3 +30,5 @@ export type BranchInfo = {
     all: string[];
     current: string;
 };
+
+export type BuildEnv = 'test' | 'prod';

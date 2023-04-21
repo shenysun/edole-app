@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
 import { CommonFunction, ShellEvent, StdEvent } from '../events/ShellEvent';
 export const ShellExpose = {
-    [ShellEvent.test]: () => {
-        return ipcRenderer.invoke(ShellEvent.test);
+    [ShellEvent.init]: () => {
+        return ipcRenderer.invoke(ShellEvent.init);
     },
 
     [ShellEvent.openEditor]: (data: { cwd: string; editor?: string }) => {

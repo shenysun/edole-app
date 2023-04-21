@@ -7,6 +7,7 @@ import { ChildProcess } from 'child_process';
 import { simpleGit } from 'simple-git';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 export default class ShellAction {
     constructor(private mainWindow: BrowserWindow) {
@@ -18,16 +19,10 @@ export default class ShellAction {
     }
 
     registerHandler() {
-        ipcMain.handle(ShellEvent.test, async () => {
-            openEditor(
-                [
-                    {
-                        file: 'D:/workspace/personal',
-                    },
-                ],
-                { editor: 'vscode' }
-            );
-            return shelljs.pwd().stdout;
+        ipcMain.handle(ShellEvent.init, async () => {
+            return {
+                platform: process.platform || os.platform(),
+            };
         });
 
         ipcMain.handle(ShellEvent.openEditor, async (e, { cwd, editor }) => {

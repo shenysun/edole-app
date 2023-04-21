@@ -20,6 +20,22 @@
                 <QCardSection class="row items-center q-pb-none">
                     <div class="text-h6">批量执行脚本</div>
                     <QSpace />
+                    <QBtnDropdown outline auto-close label="一键配置">
+                        <q-list>
+                            <q-item clickable @click="onAutoPackClick('test')">
+                                <q-item-section>
+                                    <q-item-label>测试环境</q-item-label>
+                                </q-item-section>
+                            </q-item>
+
+                            <q-item clickable @click="onAutoPackClick('prod')">
+                                <q-item-section>
+                                    <q-item-label>生产环境</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </QBtnDropdown>
+                    <QSpace />
                     <QBtn icon="close" flat round dense v-close-popup />
                 </QCardSection>
 
@@ -45,16 +61,19 @@
 
 <script lang="ts" setup>
 import { reactive, ref, watch, computed } from 'vue';
-import { ProjectInfo } from '../meta';
+import { ProjectInfo, BuildEnv } from '../meta';
 import ProjectItem from './project-item.vue';
-import { Loading, QBtn, QCard, QCardSection, QDialog, QSelect, QSeparator, QSpace } from 'quasar';
+import { Loading, QBtn, QBtnDropdown, QCard, QCardSection, QDialog, QSelect, QSeparator, QSpace } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
+import { getBuildCommand } from 'src/common/utils/build-command';
+import { useOSStore } from 'src/stores/os';
 
 const noneScript = '不执行脚本';
 const store = useProjectStore();
+const os = useOSStore();
 const { projectList, scriptsMap, scriptLatest } = storeToRefs(store);
 const scriptSelectInfo = reactive<Record<string, string>>({});
 const showScripts = ref(false);
@@ -82,6 +101,14 @@ const onAddClick = async () => {
 
 const onBatchScriptClick = () => {
     showScripts.value = true;
+};
+
+const onAutoPackClick = (type: BuildEnv) => {
+    const projectNames = Object.keys(scriptSelectInfo);
+    projectNames.forEach((projectName) => {
+        const command = getBuildCommand(projectName, type, os.platform);
+        scriptSelectInfo[projectName] = command;
+    });
 };
 
 const onBatchActionClick = async () => {
