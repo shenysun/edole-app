@@ -2,6 +2,8 @@ import { app, BrowserWindow, nativeTheme, screen } from 'electron';
 import path from 'path';
 import os from 'os';
 import ShellAction from 'app/src-electron/actions/ShellAction';
+import fixPath from 'fix-path';
+fixPath();
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
 

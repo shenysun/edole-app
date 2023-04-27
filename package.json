@@ -11,11 +11,13 @@
         "test": "echo \"No test specified\" && exit 0",
         "dev": "quasar dev -m electron",
         "dev-spa": "quasar dev -m spa",
-        "build": "quasar build -m electron"
+        "build": "quasar build -m electron",
+        "rebuild": "electron-rebuild"
     },
     "dependencies": {
         "@quasar/extras": "^1.0.0",
         "@vueuse/core": "^10.0.2",
+        "fix-path": "3",
         "line-column-path": "2.0.0",
         "open-editor": "3",
         "pinia": "^2.0.11",
@@ -26,6 +28,7 @@
         "vue-router": "^4.0.0"
     },
     "devDependencies": {
+        "@electron/rebuild": "^3.2.13",
         "@quasar/app-vite": "^1.0.0",
         "@types/node": "^12.20.21",
         "@types/shelljs": "^0.8.12",
@@ -33,6 +36,7 @@
         "@typescript-eslint/parser": "^5.10.0",
         "autoprefixer": "^10.4.2",
         "electron": "^24.1.2",
+        "electron-builder": "^22.4.0",
         "electron-packager": "^15.2.0",
         "eslint": "^8.10.0",
         "eslint-config-prettier": "^8.1.0",
@@ -45,5 +49,8 @@
         "node": "^18 || ^16 || ^14.19",
         "npm": ">= 6.13.4",
         "yarn": ">= 1.21.1"
+    },
+    "resolutions": {
+        "vue-cli-plugin-electron-builder/electron-builder": "^23.0.3"
     }
 }
