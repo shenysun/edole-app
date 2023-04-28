@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import { ShellEvent } from 'app/src-electron/events/ShellEvent';
 import shelljs from 'shelljs';
-import openEditor from './OpenEditor';
+import openEditor from 'open-editor';
 import open from 'open';
 import { ChildProcess } from 'child_process';
 import { simpleGit } from 'simple-git';
