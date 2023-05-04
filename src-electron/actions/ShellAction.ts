@@ -35,12 +35,10 @@ export default class ShellAction {
                 ],
                 { editor }
             );
-            return shelljs.pwd().stdout;
         });
 
         ipcMain.handle(ShellEvent.open, async (e, { cwd }) => {
-            open(cwd);
-            return shelljs.pwd().stdout;
+            await open(cwd);
         });
 
         ipcMain.handle(ShellEvent.dialog, async () => {
@@ -60,13 +58,16 @@ export default class ShellAction {
 
         ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch }) => {
             const gitManager = simpleGit(cwd);
+            // gitManager.diffSummary();
+            // 使用 gitManager 的 diff 方法, 输出冲突文件
+            // const m = await gitManager.diff(['--name-only', '--diff-filter=U']);
+            // gitManager.status();
+            // console.log(m);
             try {
                 if (command === 'branch') {
-                    const bs = await gitManager.branch();
-                    return bs;
+                    return await gitManager.branch();
                 } else if (command === 'checkout') {
-                    const b = await gitManager.checkout(branch);
-                    return b;
+                    return await gitManager.checkout(branch);
                 }
             } catch (error) {
                 this.mainWindow.webContents.send('stderr', error);
@@ -90,8 +91,7 @@ export default class ShellAction {
             });
 
             const projectName = path.basename(cwd);
-            const res = await this.dealStdEvent(process, { command, projectName });
-            return res;
+            return await this.dealStdEvent(process, { command, projectName });
         });
 
         ipcMain.handle(ShellEvent.batchScript, async (e, list: { command: string; cwd: string }[]) => {
@@ -106,8 +106,7 @@ export default class ShellAction {
                 return this.dealStdEvent(process, { command, projectName });
             });
 
-            const ress = await Promise.all(promiseList);
-            return ress;
+            return await Promise.all(promiseList);
         });
     }
 
