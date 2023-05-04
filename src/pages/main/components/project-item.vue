@@ -11,7 +11,6 @@
             <div class="project-info">
                 <span class="project-name">
                     {{ props.info.projectName }}
-                    <q-tooltip>{{ props.info.projectName }}</q-tooltip>
                 </span>
                 <span class="project-path">
                     项目路径： {{ props.info.path }}
@@ -25,13 +24,12 @@
                 v-model="branchInfo.current"
                 class="project-actions-select"
                 filled
-                @filter="(_input, doneFn) => getAllbranch(doneFn)"
+                @filter="(_input, doneFn) => getBranches(doneFn)"
                 :options="branchInfo.all"
                 menu-self="top middle"
                 menu-anchor="bottom middle"
             ></q-select>
 
-            <q-btn color="primary" icon="code" label="打开" @click="onOpenClick"></q-btn>
             <q-btn color="primary" icon="task" label="执行脚本">
                 <q-menu fit autoClose>
                     <q-list>
@@ -39,6 +37,20 @@
                     </q-list>
                 </q-menu>
             </q-btn>
+            <q-btn-dropdown color="primary" label="更多操作" auto-close>
+                <q-list>
+                    <q-item clickable @click="onPullClick">
+                        <q-item-section>
+                            <q-item-label>拉取代码</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                    <q-item clickable @click="onOpenClick">
+                        <q-item-section>
+                            <q-item-label>打开</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                </q-list>
+            </q-btn-dropdown>
         </div>
     </div>
     <q-separator style="margin: 10px 0"></q-separator>
@@ -60,8 +72,13 @@ const projectName = computed(() => props.info.projectName);
 const branchInfo = computed(() => store.getBranchInfo(projectName.value));
 const scripts = computed(() => store.getScripts(projectName.value));
 
-const onOpenClick = async () => {
+const onOpenClick = () => {
     electronExpose.shell.openEditor({ cwd: cwd.value });
+};
+
+const onPullClick = async () => {
+    await electronExpose.shell.git({ command: 'pull', cwd: cwd.value });
+    toast.show(`${projectName.value} 拉取代码成功`, 'done');
 };
 
 const onOpenFileClick = () => {
@@ -72,7 +89,7 @@ const onOpenFileClick = () => {
  * 获取所有分支
  * @param doneFn
  */
-const getAllbranch = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
+const getBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
     const info = await electronExpose.shell.git({ command: 'branch', cwd: cwd.value });
     if (doneFn) {
         doneFn(() => {
@@ -89,7 +106,7 @@ const getAllbranch = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QS
  */
 const checkoutBranch = async (branch: string) => {
     await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
-    await getAllbranch();
+    await getBranches();
     toast.show(`切换分支${branch}成功`, 'done');
 };
 
@@ -120,6 +137,7 @@ const onRunScript = async (command: string) => {
 /**
  * 移除项目
  * @param info
+ * @param reset
  */
 const onDeleteItem = (info: ProjectInfo, reset: () => void) => {
     Dialog.create({
@@ -151,7 +169,7 @@ watch(
     cwd,
     (val) => {
         if (val) {
-            getAllbranch();
+            getBranches();
             getAllScripts();
         }
     },

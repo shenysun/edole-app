@@ -68,6 +68,8 @@ export default class ShellAction {
                     return await gitManager.branch();
                 } else if (command === 'checkout') {
                     return await gitManager.checkout(branch);
+                } else if (command === 'pull') {
+                    return await gitManager.pull();
                 }
             } catch (error) {
                 this.mainWindow.webContents.send('stderr', error);
