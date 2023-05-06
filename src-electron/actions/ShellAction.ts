@@ -132,12 +132,12 @@ export default class ShellAction {
                 if (code === 0) {
                     resolve({ command, projectName });
                 } else {
-                    reject(code);
+                    reject(`${projectName}执行${command}失败, code: ${code}`);
                 }
             });
 
             process.once('error', (reason) => {
-                reject(reason);
+                reject(`${projectName}执行${command}失败, reason: ${reason}`);
             });
         });
     }
