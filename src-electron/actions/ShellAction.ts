@@ -38,6 +38,7 @@ export default class ShellAction {
         });
 
         ipcMain.handle(ShellEvent.open, async (e, { cwd }) => {
+            console.log('测试提交代码');
             await open(cwd);
         });
 
