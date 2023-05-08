@@ -12,20 +12,24 @@
                     v-for="info in currentProjectList"
                     :key="info.projectName"
                     @delete="onDeleteItem"
-                    :info="info"
+                    @create-branch="onShowCreateBranch"
+                    :project-info="info"
                 ></project-item>
             </template>
             <div v-else class="none-peoject absolute-center">空空如也，快去添加项目吧！</div>
         </div>
 
-        <q-dialog v-model="showScripts">
+        <q-dialog v-model="showScripts" persistent>
             <batch-scripts></batch-scripts>
+        </q-dialog>
+        <q-dialog v-model="createInfo.show" persistent>
+            <new-branch :project-info="createInfo.info!" />
         </q-dialog>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
 import { QBtn, QDialog, QSeparator } from 'quasar';
@@ -35,11 +39,13 @@ import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
 import { useGroupStore } from 'src/stores/group';
 import BatchScripts from './batch-scripts.vue';
+import NewBranch from './new-branch.vue';
 
 const store = useProjectStore();
 const groupStore = useGroupStore();
 const { currentProjectList, selectGroup } = storeToRefs(groupStore);
 const showScripts = ref(false);
+const createInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 
 const onAddClick = async () => {
     if (!selectGroup.value) {
@@ -65,6 +71,11 @@ const onDeleteItem = (info: ProjectInfo) => {
     groupStore.removeGroupProject(info);
     store.setBranchInfo(info.projectName);
     store.setScripts(info.projectName);
+};
+
+const onShowCreateBranch = (info: ProjectInfo) => {
+    createInfo.info = info;
+    createInfo.show = true;
 };
 </script>
 <style lang="scss" scoped>

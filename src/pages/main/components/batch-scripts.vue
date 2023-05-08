@@ -1,5 +1,5 @@
 <template>
-    <q-card>
+    <q-card style="min-width: 550px">
         <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">批量执行脚本</div>
             <q-space />

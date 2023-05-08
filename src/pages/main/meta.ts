@@ -26,10 +26,10 @@ export type GroupInfo = {
 /**
  * 工程项目信息
  */
-export type ProjectInfo = {
+export interface ProjectInfo {
     path: string;
     projectName: string;
-};
+}
 
 /**
  * 工程分支信息

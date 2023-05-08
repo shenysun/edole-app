@@ -57,7 +57,7 @@ export default class ShellAction {
             });
         });
 
-        ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch }) => {
+        ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch, startPoint }) => {
             const gitManager = simpleGit(cwd);
             // gitManager.diffSummary();
             // 使用 gitManager 的 diff 方法, 输出冲突文件
@@ -71,6 +71,10 @@ export default class ShellAction {
                     return await gitManager.checkout(branch);
                 } else if (command === 'pull') {
                     return await gitManager.pull();
+                } else if (command === 'checkoutBranch') {
+                    // 如果startPoint为空, 则默认为当前分支
+                    startPoint = startPoint || (await gitManager.branch()).current;
+                    return await gitManager.checkoutBranch(branch, startPoint);
                 }
             } catch (error) {
                 this.mainWindow.webContents.send('stderr', error);

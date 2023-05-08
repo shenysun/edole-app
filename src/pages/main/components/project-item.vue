@@ -2,7 +2,7 @@
     <div class="project-item">
         <q-slide-item
             rightColor="grey-7"
-            @right="({ reset }) => onDeleteItem(props.info, reset)"
+            @right="({ reset }) => onDeleteItem(props.projectInfo, reset)"
             @click="onOpenFileClick"
         >
             <template v-slot:right>
@@ -10,26 +10,16 @@
             </template>
             <div class="project-info">
                 <span class="project-name">
-                    {{ props.info.projectName }}
+                    {{ props.projectInfo.projectName }}
                 </span>
                 <span class="project-path">
-                    项目路径： {{ props.info.path }}
-                    <q-tooltip>{{ props.info.path }}</q-tooltip>
+                    项目路径： {{ props.projectInfo.path }}
+                    <q-tooltip>{{ props.projectInfo.path }}</q-tooltip>
                 </span>
             </div>
         </q-slide-item>
         <div class="project-actions">
-            <q-select
-                v-if="branchInfo"
-                v-model="branchInfo.current"
-                class="project-actions-select"
-                filled
-                @filter="(_input, doneFn) => getBranches(doneFn)"
-                :options="branchInfo.all"
-                menu-self="top middle"
-                menu-anchor="bottom middle"
-            ></q-select>
-
+            <all-branch :project-info="projectInfo"></all-branch>
             <q-btn color="primary" icon="task" label="执行脚本">
                 <q-menu fit autoClose>
                     <q-list>
@@ -39,14 +29,19 @@
             </q-btn>
             <q-btn-dropdown color="primary" label="更多操作" auto-close>
                 <q-list>
+                    <q-item clickable @click="onOpenClick">
+                        <q-item-section>
+                            <q-item-label>打开</q-item-label>
+                        </q-item-section>
+                    </q-item>
                     <q-item clickable @click="onPullClick">
                         <q-item-section>
                             <q-item-label>拉取代码</q-item-label>
                         </q-item-section>
                     </q-item>
-                    <q-item clickable @click="onOpenClick">
+                    <q-item clickable @click="onCreateBranch">
                         <q-item-section>
-                            <q-item-label>打开</q-item-label>
+                            <q-item-label>创建分支</q-item-label>
                         </q-item-section>
                     </q-item>
                 </q-list>
@@ -63,13 +58,17 @@ import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';
 import { computed, watch, defineProps } from 'vue';
 import { ProjectInfo } from '../meta';
+import AllBranch from './all-branch.vue';
 
-const props = defineProps<{ info: ProjectInfo }>();
-const emit = defineEmits(['delete']);
+interface Props {
+    projectInfo: ProjectInfo;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits(['delete', 'create-branch']);
 const store = useProjectStore();
-const cwd = computed(() => props.info.path);
-const projectName = computed(() => props.info.projectName);
-const branchInfo = computed(() => store.getBranchInfo(projectName.value));
+const cwd = computed(() => props.projectInfo.path);
+const projectName = computed(() => props.projectInfo.projectName);
 const scripts = computed(() => store.getScripts(projectName.value));
 
 const onOpenClick = () => {
@@ -79,6 +78,10 @@ const onOpenClick = () => {
 const onPullClick = async () => {
     await electronExpose.shell.git({ command: 'pull', cwd: cwd.value });
     toast.show(`${projectName.value} 拉取代码成功`, 'done');
+};
+
+const onCreateBranch = () => {
+    emit('create-branch', props.projectInfo);
 };
 
 const onOpenFileClick = () => {
@@ -98,16 +101,6 @@ const getBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSe
     } else {
         store.setBranchInfo(projectName, info);
     }
-};
-
-/**
- * 切换分支
- * @param branch
- */
-const checkoutBranch = async (branch: string) => {
-    await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
-    await getBranches();
-    toast.show(`切换分支${branch}成功`, 'done');
 };
 
 const getAllScripts = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
@@ -150,20 +143,6 @@ const onDeleteItem = (info: ProjectInfo, reset: () => void) => {
         })
         .onCancel(reset);
 };
-
-watch(
-    () => branchInfo.value?.current,
-    (val, pre) => {
-        if (!pre || !val) {
-            return;
-        }
-
-        if (val.startsWith('remotes/origin/')) {
-            val = val.split('remotes/origin/')[1];
-        }
-        checkoutBranch(val);
-    }
-);
 
 watch(
     cwd,

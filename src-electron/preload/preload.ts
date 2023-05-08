@@ -17,7 +17,7 @@ export const ShellExpose = {
         return ipcRenderer.invoke(ShellEvent.dialog);
     },
 
-    [ShellEvent.git]: (data: { command: string; branch?: string; cwd: string }) => {
+    [ShellEvent.git]: (data: { command: string; branch?: string; startPoint?: string; cwd: string }) => {
         return ipcRenderer.invoke(ShellEvent.git, data);
     },
 
