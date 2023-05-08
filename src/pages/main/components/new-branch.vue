@@ -43,7 +43,7 @@ const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(props.projectInfo?.projectName || ''));
 const { cwd, updateBranches } = useProjectItem(props.projectInfo);
 const branchName = ref('');
-const startPointBranch = ref(branchInfo.value?.current || '');
+const startPointBranch = ref(branchInfo.value?.current ?? '');
 
 const onCreateClick = async () => {
     if (!branchName.value) {

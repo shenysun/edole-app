@@ -1,8 +1,7 @@
 <template>
     <q-select
         v-if="branchInfo"
-        :model-value="props.autoCheckBranch ? branchInfo.current : props.select"
-        @update:model-value="onValueChange"
+        v-model="select"
         class="project-actions-select"
         filled
         @filter="(_input, doneFn) => updateBranches(doneFn)"
@@ -14,12 +13,13 @@
 
 <!-- 所有分支 -->
 <script lang="ts" setup>
+import { watchOnce } from '@vueuse/shared';
 import { QSelect } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 
 interface Props {
@@ -35,7 +35,22 @@ const emit = defineEmits(['update:select']);
 const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(projectName.value));
+const curSelect = ref('');
+const select = computed({
+    get: () => {
+        return props.autoCheckBranch ? branchInfo.value?.current : props.select;
+    },
+    set: (val) => {
+        curSelect.value = val ?? '';
+    },
+});
 
+watchOnce(
+    () => branchInfo.value?.current,
+    (val) => {
+        curSelect.value = val ?? '';
+    }
+);
 /**
  * 切换分支
  * @param branch
@@ -43,29 +58,23 @@ const branchInfo = computed(() => store.getBranchInfo(projectName.value));
 const checkoutBranch = async (branch: string) => {
     await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
     await updateBranches();
+    branchInfo.value && (branchInfo.value.current = branch);
     toast.show(`切换分支${branch}成功`, 'done');
 };
 
-const onValueChange = (val: string) => {
-    if (props.autoCheckBranch) {
-        branchInfo.value && (branchInfo.value.current = val);
-    } else {
-        emit('update:select', val);
+watch(curSelect, (val, pre) => {
+    if (!props.autoCheckBranch) {
+        return emit('update:select', val);
     }
-};
 
-watch(
-    () => branchInfo.value?.current,
-    (val, pre) => {
-        if (!pre || !val) {
-            return;
-        }
-
-        if (val.startsWith('remotes/origin/')) {
-            val = val.split('remotes/origin/')[1];
-        }
-        checkoutBranch(val);
+    if (!pre || !val) {
+        return;
     }
-);
+
+    if (val.startsWith('remotes/origin/')) {
+        val = val.split('remotes/origin/')[1];
+    }
+    checkoutBranch(val);
+});
 </script>
 <style scoped></style>
