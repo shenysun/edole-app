@@ -55,6 +55,7 @@
 import { Dialog, QBtn, QIcon, QItem, QList, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
+import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
 import { computed, watch, defineProps } from 'vue';
 import { ProjectInfo } from '../meta';
@@ -67,8 +68,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(['delete', 'create-branch']);
 const store = useProjectStore();
-const cwd = computed(() => props.projectInfo.path);
-const projectName = computed(() => props.projectInfo.projectName);
+const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const scripts = computed(() => store.getScripts(projectName.value));
 
 const onOpenClick = () => {
@@ -86,21 +86,6 @@ const onCreateBranch = () => {
 
 const onOpenFileClick = () => {
     electronExpose.shell.open({ cwd: cwd.value });
-};
-
-/**
- * 获取所有分支
- * @param doneFn
- */
-const getBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-    const info = await electronExpose.shell.git({ command: 'branch', cwd: cwd.value });
-    if (doneFn) {
-        doneFn(() => {
-            store.setBranchInfo(projectName, info);
-        });
-    } else {
-        store.setBranchInfo(projectName, info);
-    }
 };
 
 const getAllScripts = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
@@ -148,7 +133,7 @@ watch(
     cwd,
     (val) => {
         if (val) {
-            getBranches();
+            updateBranches();
             getAllScripts();
         }
     },

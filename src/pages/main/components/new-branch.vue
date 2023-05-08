@@ -27,20 +27,21 @@
 <script lang="ts" setup>
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
+import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
 import { computed, ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import AllBranch from './all-branch.vue';
 
 interface Props {
-    projectInfo?: ProjectInfo;
+    projectInfo: ProjectInfo;
 }
 
 const emit = defineEmits(['update:show']);
 const props = defineProps<Props>();
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(props.projectInfo?.projectName || ''));
-const cwd = computed(() => props.projectInfo?.path);
+const { cwd, updateBranches } = useProjectItem(props.projectInfo);
 const branchName = ref('');
 const startPointBranch = ref(branchInfo.value?.current || '');
 
@@ -61,8 +62,9 @@ const onCreateClick = async () => {
         startPoint: val,
         cwd: cwd.value || '',
     });
-    toast.show(`创建分支${branchName.value}成功`, 'done');
     emit('update:show', false);
+    toast.show(`创建分支${branchName.value}成功`, 'done');
+    updateBranches();
 };
 </script>
 <style scoped></style>

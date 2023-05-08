@@ -23,7 +23,11 @@
             <batch-scripts></batch-scripts>
         </q-dialog>
         <q-dialog v-model="newBranchInfo.show" persistent>
-            <new-branch @update:show="(val) => (newBranchInfo.show = val)" :project-info="newBranchInfo.info!" />
+            <new-branch
+                v-if="newBranchInfo.info"
+                @update:show="(val) => (newBranchInfo.show = val)"
+                :project-info="newBranchInfo.info"
+            />
         </q-dialog>
     </div>
 </template>

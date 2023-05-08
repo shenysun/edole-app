@@ -5,7 +5,7 @@
         @update:model-value="onValueChange"
         class="project-actions-select"
         filled
-        @filter="(_input, doneFn) => getBranches(doneFn)"
+        @filter="(_input, doneFn) => updateBranches(doneFn)"
         :options="branchInfo.all"
         menu-self="top middle"
         menu-anchor="bottom middle"
@@ -17,6 +17,7 @@
 import { QSelect } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
+import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
 import { computed, watch } from 'vue';
 import { ProjectInfo } from '../meta';
@@ -31,25 +32,9 @@ const props = withDefaults(defineProps<Props>(), {
     autoCheckBranch: true,
 });
 const emit = defineEmits(['update:select']);
-const cwd = computed(() => props.projectInfo.path);
-const projectName = computed(() => props.projectInfo.projectName);
+const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(projectName.value));
-
-/**
- * 获取所有分支
- * @param doneFn
- */
-const getBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-    const info = await electronExpose.shell.git({ command: 'branch', cwd: cwd.value });
-    if (doneFn) {
-        doneFn(() => {
-            store.setBranchInfo(projectName.value, info);
-        });
-    } else {
-        store.setBranchInfo(projectName.value, info);
-    }
-};
 
 /**
  * 切换分支
@@ -57,7 +42,7 @@ const getBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSe
  */
 const checkoutBranch = async (branch: string) => {
     await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
-    await getBranches();
+    await updateBranches();
     toast.show(`切换分支${branch}成功`, 'done');
 };
 
