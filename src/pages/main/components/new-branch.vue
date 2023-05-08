@@ -19,7 +19,7 @@
 
         <q-card-actions align="right" class="text-primary">
             <q-btn flat label="取消" v-close-popup />
-            <q-btn flat label="创建分支" v-close-popup @click="onCreateClick" />
+            <q-btn flat label="创建分支" @click="onCreateClick" />
         </q-card-actions>
     </q-card>
 </template>
@@ -35,6 +35,8 @@ import AllBranch from './all-branch.vue';
 interface Props {
     projectInfo?: ProjectInfo;
 }
+
+const emit = defineEmits(['update:show']);
 const props = defineProps<Props>();
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(props.projectInfo?.projectName || ''));
@@ -60,6 +62,7 @@ const onCreateClick = async () => {
         cwd: cwd.value || '',
     });
     toast.show(`创建分支${branchName.value}成功`, 'done');
+    emit('update:show', false);
 };
 </script>
 <style scoped></style>

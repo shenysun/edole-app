@@ -22,8 +22,8 @@
         <q-dialog v-model="showScripts" persistent>
             <batch-scripts></batch-scripts>
         </q-dialog>
-        <q-dialog v-model="createInfo.show" persistent>
-            <new-branch :project-info="createInfo.info!" />
+        <q-dialog v-model="newBranchInfo.show" persistent>
+            <new-branch @update:show="(val) => (newBranchInfo.show = val)" :project-info="newBranchInfo.info!" />
         </q-dialog>
     </div>
 </template>
@@ -45,7 +45,7 @@ const store = useProjectStore();
 const groupStore = useGroupStore();
 const { currentProjectList, selectGroup } = storeToRefs(groupStore);
 const showScripts = ref(false);
-const createInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
+const newBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 
 const onAddClick = async () => {
     if (!selectGroup.value) {
@@ -74,8 +74,8 @@ const onDeleteItem = (info: ProjectInfo) => {
 };
 
 const onShowCreateBranch = (info: ProjectInfo) => {
-    createInfo.info = info;
-    createInfo.show = true;
+    newBranchInfo.info = info;
+    newBranchInfo.show = true;
 };
 </script>
 <style lang="scss" scoped>
