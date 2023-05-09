@@ -5,6 +5,7 @@
             <q-btn class="project-add" color="teal" label="添加项目" @click="onAddClick"></q-btn>
             <q-btn class="project-script" color="teal" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
             <q-btn class="project-script" color="teal" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
+            <q-btn class="project-script" color="red-6" label="更新代码" @click="batchPullClick"></q-btn>
         </header>
         <q-separator style="margin: 20px 0"></q-separator>
         <div class="project-item-wrapper">
@@ -37,7 +38,7 @@
 import { computed, reactive, ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
-import { QBtn, QDialog, QSeparator } from 'quasar';
+import { Loading, QBtn, QDialog, QSeparator } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';
@@ -78,6 +79,23 @@ const onAddClick = async () => {
         return;
     }
     toast.show(`${curAddList.join(',')} 项目添加成功`, 'done');
+};
+
+const batchPullClick = async () => {
+    const list: Array<Promise<unknown>> = [];
+    currentProjectList.value?.forEach((projectInfo) => {
+        list.push(electronExpose.shell.git({ command: 'pull', cwd: projectInfo.path }));
+    });
+
+    Loading.show({ message: '批量更新代码中' });
+    try {
+        await Promise.all(list);
+        toast.show('批量更新代码成功', 'done');
+    } catch (error) {
+        toast.show('批量更新代码失败', 'error');
+    } finally {
+        Loading.hide();
+    }
 };
 
 const onDeleteItem = (info: ProjectInfo) => {
