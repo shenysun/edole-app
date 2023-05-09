@@ -28,8 +28,7 @@
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
-import { useProjectStore } from 'src/stores/project';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import AllBranch from './all-branch.vue';
 
@@ -39,11 +38,9 @@ interface Props {
 
 const emit = defineEmits(['update:show']);
 const props = defineProps<Props>();
-const store = useProjectStore();
-const branchInfo = computed(() => store.getBranchInfo(props.projectInfo?.projectName || ''));
 const { cwd, updateBranches } = useProjectItem(props.projectInfo);
 const branchName = ref('');
-const startPointBranch = ref(branchInfo.value?.current ?? '');
+const startPointBranch = ref('');
 
 const onCreateClick = async () => {
     if (!branchName.value) {

@@ -17,13 +17,6 @@
                     </q-item>
                 </q-list>
             </q-btn-dropdown>
-            <q-input
-                v-else-if="props.type === 'branch'"
-                dense
-                v-model="uniteInput"
-                placeholder="输入新的分支名"
-                autofocus
-            />
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -38,18 +31,16 @@
                 ></q-select>
             </div>
         </q-card-section>
-        <q-card-section class="dialog-content dialog-content-branch" v-else-if="props.type === 'branch'">
+        <q-card-section class="dialog-content dialog-content-script" v-else-if="props.type === 'branch'">
             <div v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
                 <span class="dialog-project-name">{{ info.projectName }}</span>
-                <span>新分支</span>
-                <q-input dense v-model="branchInputInfo[info.projectName]" placeholder="输入新的分支名" autofocus />
-                <span>基于</span>
-                <all-branch
-                    class="dialog-project-branch"
-                    :project-info="info"
-                    v-model:select="branchSelectInfo[info.projectName]"
-                    :auto-check-branch="false"
-                />
+                <all-branch :project-info="info" :auto-check-branch="false" />
+                <q-select
+                    v-model="scriptSelectInfo[info.projectName]"
+                    class="dialog-project-scripts"
+                    filled
+                    :options="scriptOptions(info.projectName)"
+                ></q-select>
             </div>
         </q-card-section>
         <q-separator></q-separator>
@@ -68,7 +59,7 @@ import { getBuildCommand, noneScript } from 'src/common/utils/build-command';
 import { useGroupStore } from 'src/stores/group';
 import { useOSStore } from 'src/stores/os';
 import { useProjectStore } from 'src/stores/project';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { BuildEnv } from '../meta';
 import AllBranch from './all-branch.vue';
 
@@ -76,15 +67,13 @@ interface Props {
     type: 'branch' | 'script' | '';
 }
 const props = defineProps<Props>();
+
 const os = useOSStore();
 const groupStore = useGroupStore();
 const projectStore = useProjectStore();
 const { currentProjectList } = storeToRefs(groupStore);
 const { scriptsMap, scriptLatest } = storeToRefs(projectStore);
-const uniteInput = ref('');
 const scriptSelectInfo = reactive<Record<string, string>>({});
-const branchSelectInfo = reactive<Record<string, string>>({});
-const branchInputInfo = reactive<Record<string, string>>({});
 
 const scriptOptions = computed(() => {
     return (projectName: string) => {
@@ -100,42 +89,7 @@ const onAutoPackClick = (type: BuildEnv) => {
     });
 };
 
-const batchBranch = async () => {
-    const projectNames = Object.keys(branchInputInfo);
-    const list: Array<Promise<unknown>> = [];
-    projectNames.forEach((projectName) => {
-        const cwd = groupStore.getProjectCwd(projectName);
-        if (cwd) {
-            const branch = branchInputInfo[projectName];
-            if (branch) {
-                list.push(
-                    electronExpose.shell.git({
-                        command: 'checkoutBranch',
-                        branch,
-                        startPoint: branchSelectInfo[projectName],
-                        cwd,
-                    })
-                );
-            }
-        }
-    });
-
-    Loading.show({
-        message: '批量创建分支中',
-    });
-
-    try {
-        await Promise.all(list);
-        toast.show('批量创建分支完毕', 'done');
-    } catch (error) {
-        toast.show('批量创建分支有错误', 'error');
-    } finally {
-        Loading.hide();
-        updateProjectBranch();
-    }
-};
-
-const batchScript = async () => {
+const onBatchActionClick = async () => {
     const projectNames = Object.keys(scriptSelectInfo);
     const list: Array<{ cwd: string; command: string }> = [];
     projectNames.forEach((projectName) => {
@@ -166,29 +120,6 @@ const batchScript = async () => {
     }
 };
 
-const updateProjectBranch = async () => {
-    currentProjectList.value?.forEach((projectInfo) => {
-        const { projectName, path } = projectInfo;
-        electronExpose.shell.git({ command: 'branch', cwd: path }).then((info) => {
-            projectStore.setBranchInfo(projectName, info);
-        });
-    });
-};
-
-const onBatchActionClick = () => {
-    switch (props.type) {
-        case 'script':
-            batchScript();
-            break;
-        case 'branch':
-            batchBranch();
-            break;
-
-        default:
-            break;
-    }
-};
-
 watch(
     scriptLatest,
     (val) => {
@@ -206,34 +137,11 @@ watch(
         immediate: true,
     }
 );
-
-watch(uniteInput, (val) => {
-    if (!currentProjectList.value) {
-        return;
-    }
-
-    for (const info of currentProjectList.value) {
-        branchInputInfo[info.projectName] = val;
-    }
-});
 </script>
 <style lang="scss" scoped>
 .dialog-content {
     height: 70vh;
     overflow: auto;
-
-    &.dialog-content-branch .dialog-content-item {
-        .dialog-project-name {
-            text-align: left;
-            flex: 0 0 auto;
-            margin-right: 50px;
-        }
-
-        span {
-            white-space: nowrap;
-            margin-right: 10px;
-        }
-    }
 
     .dialog-content-item {
         display: flex;
@@ -245,7 +153,6 @@ watch(uniteInput, (val) => {
             flex: 0 0 300px;
         }
 
-        .dialog-project-branch,
         .dialog-project-scripts {
             width: 250px;
             :deep(.q-field__inner) {

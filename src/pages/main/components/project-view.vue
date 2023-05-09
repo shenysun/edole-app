@@ -3,7 +3,8 @@
         <header class="project-header">
             <span class="project-title">项目</span>
             <q-btn class="project-add" color="teal" label="添加项目" @click="onAddClick"></q-btn>
-            <q-btn class="project-script" color="red-6" label="批量执行脚本" @click="showScripts = true"></q-btn>
+            <q-btn class="project-script" color="teal" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
+            <q-btn class="project-script" color="teal" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
         </header>
         <q-separator style="margin: 20px 0"></q-separator>
         <div class="project-item-wrapper">
@@ -19,8 +20,8 @@
             <div v-else class="none-peoject absolute-center">空空如也，快去添加项目吧！</div>
         </div>
 
-        <q-dialog v-model="showScripts" persistent>
-            <batch-scripts></batch-scripts>
+        <q-dialog v-model="isShowBatch" persistent>
+            <batch-scripts :type="batchType"></batch-scripts>
         </q-dialog>
         <q-dialog v-model="newBranchInfo.show" persistent>
             <new-branch
@@ -33,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
 import { QBtn, QDialog, QSeparator } from 'quasar';
@@ -48,8 +49,16 @@ import NewBranch from './new-branch.vue';
 const store = useProjectStore();
 const groupStore = useGroupStore();
 const { currentProjectList, selectGroup } = storeToRefs(groupStore);
-const showScripts = ref(false);
+const batchType = ref<'branch' | 'script' | ''>('');
 const newBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
+const isShowBatch = computed({
+    get: () => batchType.value !== '',
+    set: (val) => {
+        if (!val) {
+            batchType.value = '';
+        }
+    },
+});
 
 const onAddClick = async () => {
     if (!selectGroup.value) {

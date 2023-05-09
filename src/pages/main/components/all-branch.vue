@@ -13,13 +13,12 @@
 
 <!-- 所有分支 -->
 <script lang="ts" setup>
-import { watchOnce } from '@vueuse/shared';
 import { QSelect } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 
 interface Props {
@@ -45,10 +44,20 @@ const select = computed({
     },
 });
 
-watchOnce(
+const cancel = watch(
     () => branchInfo.value?.current,
     (val) => {
         curSelect.value = val ?? '';
+        if (curSelect.value) {
+            nextTick(() => cancel());
+        }
+
+        if (!props.autoCheckBranch) {
+            emit('update:select', curSelect.value);
+        }
+    },
+    {
+        immediate: true,
     }
 );
 /**
@@ -75,6 +84,11 @@ watch(curSelect, (val, pre) => {
         val = val.split('remotes/origin/')[1];
     }
     checkoutBranch(val);
+});
+console.log('setup');
+
+onMounted(() => {
+    console.log('onMounted');
 });
 </script>
 <style scoped></style>
