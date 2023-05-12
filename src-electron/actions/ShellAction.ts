@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ShellEvent } from 'app/src-electron/events/ShellEvent';
 import shelljs from 'shelljs';
 import openEditor from 'open-editor';
@@ -6,8 +6,9 @@ import open from 'open';
 import { ChildProcess } from 'child_process';
 import { simpleGit } from 'simple-git';
 import path from 'path';
-import fs from 'fs';
+import fs, { promises } from 'fs';
 import os from 'os';
+import { RootName } from '../preload/preload';
 
 export default class ShellAction {
     constructor(private mainWindow: BrowserWindow) {
@@ -37,8 +38,10 @@ export default class ShellAction {
             );
         });
 
-        ipcMain.handle(ShellEvent.open, async (e, { cwd }) => {
-            console.log('测试提交代码');
+        ipcMain.handle(ShellEvent.open, async (e, { cwd, root }) => {
+            if (root) {
+                cwd = path.join(app.getPath(root), cwd);
+            }
             await open(cwd);
         });
 
@@ -115,6 +118,24 @@ export default class ShellAction {
 
             return await Promise.all(promiseList);
         });
+
+        ipcMain.handle(
+            ShellEvent.writeFile,
+            async (e, data: { root: RootName; cwd: string; file: string; content: string }) => {
+                const { root, cwd, file, content } = data;
+                const p = path.join(app.getPath(root), cwd, file || '');
+                // writeFile(p, content, {
+                //     encoding: 'utf-8',
+                // });
+                try {
+                    await promises.writeFile(p, content, {
+                        encoding: 'utf-8',
+                    });
+                } catch (error) {
+                    this.mainWindow.webContents.send('stderr', error);
+                }
+            }
+        );
     }
 
     dealStdEvent(process: ChildProcess, { command, projectName }: { command: string; projectName: string }) {

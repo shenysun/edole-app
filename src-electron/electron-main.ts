@@ -1,8 +1,9 @@
 import { app, BrowserWindow, nativeTheme, screen } from 'electron';
 import path from 'path';
 import os from 'os';
-import ShellAction from 'app/src-electron/actions/ShellAction';
+import ShellAction from './actions/ShellAction';
 import fixPath from 'fix-path';
+import { AppMenu } from './menu/AppMenu';
 fixPath();
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
@@ -14,6 +15,11 @@ try {
 } catch (_) {}
 
 let mainWindow: BrowserWindow | undefined;
+
+function initApp() {
+    createWindow();
+    new AppMenu(platform);
+}
 
 function createWindow() {
     /**
@@ -80,7 +86,7 @@ function createWindow() {
     });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(initApp);
 
 app.on('window-all-closed', () => {
     if (platform !== 'darwin') {
@@ -90,6 +96,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     if (mainWindow === undefined) {
-        createWindow();
+        initApp();
     }
 });

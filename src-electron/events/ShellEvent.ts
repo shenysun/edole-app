@@ -1,3 +1,5 @@
+import { IpcRendererEvent } from 'electron';
+
 export enum ShellEvent {
     init = 'init',
     open = 'open',
@@ -7,6 +9,7 @@ export enum ShellEvent {
     scriptList = 'scriptList',
     script = 'script',
     batchScript = 'batchScript',
+    writeFile = 'writeFile',
 }
 
 export enum StdEvent {
@@ -14,4 +17,13 @@ export enum StdEvent {
     off = 'off',
 }
 
+export enum MenuEvent {
+    context = 'context',
+    on = 'on',
+    off = 'off',
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CommonFunction<RT = void> = (...args: any[]) => RT;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type IpcFunction<RT = void> = (event: IpcRendererEvent, ...args: any[]) => RT;
