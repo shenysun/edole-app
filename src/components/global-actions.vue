@@ -33,7 +33,7 @@ const onMenuAction = (_sender: unknown, args: { type: string; [key: string]: unk
                     dirName = 'saas_teacher';
                     break;
                 case 'speiyou':
-                    dirName = 'teacher';
+                    dirName = 'newxesteacher-0';
                     break;
 
                 default:
