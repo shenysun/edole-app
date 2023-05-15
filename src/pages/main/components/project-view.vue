@@ -22,7 +22,7 @@
         </div>
 
         <q-dialog v-model="isShowBatch" persistent>
-            <batch-scripts :type="batchType"></batch-scripts>
+            <batch-dialog :type="batchType"></batch-dialog>
         </q-dialog>
         <q-dialog v-model="newBranchInfo.show" persistent>
             <new-branch
@@ -44,7 +44,7 @@ import toast from 'src/common/toast';
 import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
 import { useGroupStore } from 'src/stores/group';
-import BatchScripts from './batch-scripts.vue';
+import batchDialog from './batch-dialog.vue';
 import NewBranch from './new-branch.vue';
 
 const store = useProjectStore();

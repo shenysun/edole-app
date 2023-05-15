@@ -1,5 +1,5 @@
 <template>
-    <q-card style="min-width: 550px">
+    <q-card class="batch-dialog">
         <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">批量{{ props.type === 'script' ? '执行脚本' : '创建分支' }}</div>
             <q-space />
@@ -218,6 +218,10 @@ watch(uniteInput, (val) => {
 });
 </script>
 <style lang="scss" scoped>
+.batch-dialog {
+    min-width: 560px;
+    max-width: 100%;
+}
 .dialog-content {
     height: 70vh;
     overflow: auto;
@@ -225,7 +229,7 @@ watch(uniteInput, (val) => {
     &.dialog-content-branch .dialog-content-item {
         .dialog-project-name {
             text-align: left;
-            flex: 0 0 auto;
+            flex: 0 0 250px;
             margin-right: 50px;
         }
 
