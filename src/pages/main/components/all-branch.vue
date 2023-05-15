@@ -18,7 +18,7 @@ import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 
 interface Props {
@@ -84,11 +84,6 @@ watch(curSelect, (val, pre) => {
         val = val.split('remotes/origin/')[1];
     }
     checkoutBranch(val);
-});
-console.log('setup');
-
-onMounted(() => {
-    console.log('onMounted');
 });
 </script>
 <style scoped></style>
