@@ -6,8 +6,6 @@
         filled
         @filter="(_input, doneFn) => updateBranches(doneFn)"
         :options="branchInfo.all"
-        menu-self="top middle"
-        menu-anchor="bottom middle"
     ></q-select>
 </template>
 
