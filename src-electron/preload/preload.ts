@@ -49,8 +49,8 @@ export const Std = {
 };
 
 export const Menu = {
-    [MenuEvent.context]: () => {
-        ipcRenderer.send(MenuEvent.context);
+    [MenuEvent.context]: (data: { x: number; y: number }) => {
+        ipcRenderer.send(MenuEvent.context, data);
     },
     [MenuEvent.on]: (type: 'menu', callback: IpcFunction) => {
         ipcRenderer.on(type, callback);

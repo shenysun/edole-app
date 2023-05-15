@@ -40,16 +40,38 @@ export class AppMenu {
     }
 
     private initContextMenu() {
-        ipcMain.on(MenuEvent.context, (event) => {
+        ipcMain.on(MenuEvent.context, (event, data) => {
             const template: Array<MenuItemConstructorOptions | MenuItem> = [
                 {
-                    label: 'Menu Item 1',
+                    label: '打开调试工具',
                     click: () => {
-                        console.log('nihao');
+                        const webContents = view?.webContents;
+                        if (webContents) {
+                            if (webContents.isDevToolsOpened()) {
+                                return;
+                            }
+                            webContents.openDevTools({ mode: 'detach', activate: true });
+                        }
+                    },
+                },
+                {
+                    label: '关闭调试工具',
+                    click: () => {
+                        const webContents = view?.webContents;
+                        if (webContents) {
+                            if (webContents.isDevToolsOpened()) {
+                                webContents.closeDevTools();
+                            }
+                        }
                     },
                 },
                 { type: 'separator' },
-                { label: 'Menu Item 2', type: 'checkbox', checked: true },
+                {
+                    label: '检查元素',
+                    click: () => {
+                        view?.webContents.inspectElement(data.x, data.y);
+                    },
+                },
             ];
             const menu = Menu.buildFromTemplate(template);
             const sender = event.sender;
