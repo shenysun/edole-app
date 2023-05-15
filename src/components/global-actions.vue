@@ -12,7 +12,7 @@ import { onMounted, onUnmounted } from 'vue';
 
 const href = useLocalStorage('latestHref', 'http://localhost:8080');
 
-const onContextMenu = (e: PointerEvent) => {
+const onContextMenu = (e: MouseEvent) => {
     electronExpose.menu.context({ x: e.clientX, y: e.clientY });
 };
 const onMenuAction = (_sender: unknown, args: { type: string; [key: string]: unknown }) => {
