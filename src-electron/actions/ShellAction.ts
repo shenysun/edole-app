@@ -1,9 +1,8 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ShellEvent } from 'app/src-electron/events/ShellEvent';
-import shelljs from 'shelljs';
 import openEditor from 'open-editor';
 import open from 'open';
-import { ChildProcess } from 'child_process';
+import { ChildProcess, exec } from 'child_process';
 import { simpleGit } from 'simple-git';
 import path from 'path';
 import fs, { promises } from 'fs';
@@ -12,10 +11,6 @@ import { RootName } from '../preload/preload';
 
 export default class ShellAction {
     constructor(private mainWindow: BrowserWindow) {
-        const node = shelljs.which('node');
-        if (node) {
-            shelljs.config.execPath = node.toString();
-        }
         this.registerHandler();
     }
 
@@ -94,12 +89,7 @@ export default class ShellAction {
         });
 
         ipcMain.handle(ShellEvent.script, async (e, { command, cwd }) => {
-            const process = shelljs.exec(`npm run ${command}`, {
-                cwd,
-                async: true,
-                silent: true,
-            });
-
+            const process = exec(`npm run ${command}`, { cwd });
             const projectName = path.basename(cwd);
             return await this.dealStdEvent(process, { command, projectName });
         });
@@ -107,11 +97,7 @@ export default class ShellAction {
         ipcMain.handle(ShellEvent.batchScript, async (e, list: { command: string; cwd: string }[]) => {
             const promiseList = list.map((info) => {
                 const { command, cwd } = info;
-                const process = shelljs.exec(`npm run ${command}`, {
-                    cwd,
-                    async: true,
-                    silent: true,
-                });
+                const process = exec(`npm run ${command}`, { cwd });
                 const projectName = path.basename(cwd);
                 return this.dealStdEvent(process, { command, projectName });
             });
