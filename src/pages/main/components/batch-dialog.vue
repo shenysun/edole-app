@@ -142,12 +142,13 @@ const batchScript = async () => {
         const cwd = groupStore.getProjectCwd(projectName);
         if (cwd) {
             const command = scriptSelectInfo[projectName];
-            if (command && command !== noneScript) {
+            if (command) {
                 projectStore.setScriptLatest(projectName, command);
-                list.push({
-                    cwd,
-                    command,
-                });
+                command !== noneScript &&
+                    list.push({
+                        cwd,
+                        command,
+                    });
             }
         }
     });
