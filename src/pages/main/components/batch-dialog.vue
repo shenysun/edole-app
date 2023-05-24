@@ -35,7 +35,15 @@
                     class="dialog-project-scripts"
                     filled
                     :options="scriptOptions(info.projectName)"
+                    :disable="isScriptExecuting"
                 ></q-select>
+                <div class="project-status">
+                    <span>执行状态：</span>
+                    <span :style="'color: ' + execStatusToColor(scriptExecInfo[info.projectName]) + ';'">{{
+                        execStatusToCN(scriptExecInfo[info.projectName])
+                    }}</span>
+                    <!-- <q-icon :name="execStatusToIcon(scriptExecInfo[info.projectName])"></q-icon> -->
+                </div>
             </div>
         </q-card-section>
         <q-card-section class="dialog-content dialog-content-branch" v-else-if="props.type === 'branch'">
@@ -68,10 +76,12 @@ import { getBuildCommand, noneScript } from 'src/common/utils/build-command';
 import { useGroupStore } from 'src/stores/group';
 import { useOSStore } from 'src/stores/os';
 import { useProjectStore } from 'src/stores/project';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { BuildEnv } from '../meta';
 import AllBranch from './all-branch.vue';
 
+// 执行状态 = 不执行 | 未开始 | 开始 | 成功 | 失败
+type ExecStatus = 'none' | 'not-start' | 'start' | 'success' | 'error';
 interface Props {
     type: 'branch' | 'script' | '';
 }
@@ -82,7 +92,9 @@ const projectStore = useProjectStore();
 const { currentProjectList } = storeToRefs(groupStore);
 const { scriptsMap, scriptLatest } = storeToRefs(projectStore);
 const uniteInput = ref('');
+const isScriptExecuting = ref(false);
 const scriptSelectInfo = reactive<Record<string, string>>({});
+const scriptExecInfo = reactive<Record<string, ExecStatus>>({});
 const branchSelectInfo = reactive<Record<string, string>>({});
 const branchInputInfo = reactive<Record<string, string>>({});
 
@@ -136,19 +148,28 @@ const batchBranch = async () => {
 };
 
 const batchScript = async () => {
+    isScriptExecuting.value = true;
+    function dealPromise(name: string, p: Promise<unknown>) {
+        p.then(() => {
+            scriptExecInfo[name] = 'success';
+        }).catch(() => {
+            scriptExecInfo[name] = 'error';
+        });
+    }
     const projectNames = Object.keys(scriptSelectInfo);
-    const list: Array<{ cwd: string; command: string }> = [];
+    const scrPromiseList: Promise<unknown>[] = [];
     projectNames.forEach((projectName) => {
         const cwd = groupStore.getProjectCwd(projectName);
         if (cwd) {
             const command = scriptSelectInfo[projectName];
             if (command) {
                 projectStore.setScriptLatest(projectName, command);
-                command !== noneScript &&
-                    list.push({
-                        cwd,
-                        command,
-                    });
+                if (command !== noneScript) {
+                    const p = electronExpose.shell.script({ command, cwd });
+                    dealPromise(projectName, p);
+                    scriptExecInfo[projectName] = 'start';
+                    scrPromiseList.push(p);
+                }
             }
         }
     });
@@ -158,12 +179,11 @@ const batchScript = async () => {
     });
 
     try {
-        await electronExpose.shell.batchScript(list);
+        await Promise.allSettled(scrPromiseList);
         toast.show('批量脚本执行完毕', 'done');
-    } catch (error) {
-        toast.show('批量脚本执行有错误', 'error');
     } finally {
         Loading.hide();
+        isScriptExecuting.value = false;
     }
 };
 
@@ -189,6 +209,52 @@ const onBatchActionClick = () => {
             break;
     }
 };
+
+// 将 ExecStatus 类型转换为对应的颜色
+const execStatusToColor = (status: ExecStatus) => {
+    switch (status) {
+        case 'none':
+            return 'grey';
+        case 'not-start':
+            return 'grey';
+        case 'start':
+            return 'blue';
+        case 'success':
+            return 'green';
+        case 'error':
+            return 'red';
+        default:
+            return 'grey';
+    }
+};
+const execStatusToCN = (status: ExecStatus) => {
+    switch (status) {
+        case 'none':
+            return '不执行';
+        case 'not-start':
+            return '未开始';
+        case 'start':
+            return '开始';
+        case 'success':
+            return '成功';
+        case 'error':
+            return '失败';
+        default:
+            return '未知';
+    }
+};
+
+// 检测 scriptSelectInfo 变更，然后更改 scriptExecInfo
+watchEffect(() => {
+    for (const projectName in scriptSelectInfo) {
+        if (Object.prototype.hasOwnProperty.call(scriptSelectInfo, projectName)) {
+            const command = scriptSelectInfo[projectName];
+            command === noneScript
+                ? (scriptExecInfo[projectName] = 'none')
+                : (scriptExecInfo[projectName] = 'not-start');
+        }
+    }
+});
 
 watch(
     scriptLatest,
@@ -239,10 +305,22 @@ watch(uniteInput, (val) => {
         align-items: center;
         margin-bottom: 10px;
 
+        & > * {
+            &:not(:last-child) {
+                margin-right: 20px;
+            }
+        }
+
+        .project-status {
+            width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .dialog-project-name {
             text-align: left;
             flex: 0 0 250px;
-            margin-right: 40px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
