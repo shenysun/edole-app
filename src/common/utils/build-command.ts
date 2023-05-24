@@ -7,9 +7,11 @@ export const coursewarelibraryPlatform = {
     darwin: 'build:local',
 };
 
-export const baselibraryBuildEnv = {
-    test: 'build:test',
-    prod: 'build:prod',
+export const baselibraryBuildEnv: Record<BuildEnv, string> = {
+    'test:ld': 'build:test',
+    'prod:ld': 'build:prod',
+    'test:sy': 'build:sy:test',
+    'prod:sy': 'build:sy:prod',
 };
 
 export const getBuildCommand = (projectName: string, env: BuildEnv, platform: string) => {

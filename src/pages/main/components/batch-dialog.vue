@@ -5,16 +5,13 @@
             <q-space />
             <q-btn-dropdown outline auto-close label="一键配置" v-if="props.type === 'script'">
                 <q-list>
-                    <q-item clickable @click="onAutoPackClick('test')">
-                        <q-item-section>
-                            <q-item-label>测试环境</q-item-label>
-                        </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="onAutoPackClick('prod')">
-                        <q-item-section>
-                            <q-item-label>生产环境</q-item-label>
-                        </q-item-section>
-                    </q-item>
+                    <template v-for="item in quickConfigMap" :key="item.type">
+                        <q-item clickable @click="onAutoPackClick(item.type)">
+                            <q-item-section>
+                                <q-item-label>{{ item.label }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </template>
                 </q-list>
             </q-btn-dropdown>
             <q-input
@@ -91,6 +88,13 @@ const groupStore = useGroupStore();
 const projectStore = useProjectStore();
 const { currentProjectList } = storeToRefs(groupStore);
 const { scriptsMap, scriptLatest } = storeToRefs(projectStore);
+// 一键配置源数据
+const quickConfigMap = ref<{ type: BuildEnv; label: string }[]>([
+    { type: 'test:ld', label: '乐读--测试环境' },
+    { type: 'prod:ld', label: '乐读--生产环境' },
+    { type: 'test:sy', label: '素养--测试环境' },
+    { type: 'prod:sy', label: '素养--生产环境' },
+]);
 const uniteInput = ref('');
 const isScriptExecuting = ref(false);
 const scriptSelectInfo = reactive<Record<string, string>>({});

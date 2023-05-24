@@ -39,4 +39,4 @@ export type BranchInfo = {
     current: string;
 };
 
-export type BuildEnv = 'test' | 'prod';
+export type BuildEnv = 'test:ld' | 'prod:ld' | 'test:sy' | 'prod:sy';

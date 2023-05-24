@@ -4,6 +4,7 @@ import os from 'os';
 import ShellAction from './actions/ShellAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
+
 fixPath();
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
