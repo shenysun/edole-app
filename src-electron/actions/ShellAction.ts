@@ -89,7 +89,7 @@ export default class ShellAction {
         });
 
         ipcMain.handle(ShellEvent.script, async (e, { command, cwd }) => {
-            const process = exec(`npm run ${command}`, { cwd });
+            const process = exec(`npm run ${command}`, { cwd, env: {} as NodeJS.ProcessEnv });
             const projectName = path.basename(cwd);
             return await this.dealStdEvent(process, { command, projectName });
         });
@@ -97,7 +97,7 @@ export default class ShellAction {
         ipcMain.handle(ShellEvent.batchScript, async (e, list: { command: string; cwd: string }[]) => {
             const promiseList = list.map((info) => {
                 const { command, cwd } = info;
-                const process = exec(`npm run ${command}`, { cwd });
+                const process = exec(`npm run ${command}`, { cwd, env: {} as NodeJS.ProcessEnv });
                 const projectName = path.basename(cwd);
                 return this.dealStdEvent(process, { command, projectName });
             });
