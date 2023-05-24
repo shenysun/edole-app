@@ -228,15 +228,9 @@ watch(uniteInput, (val) => {
     overflow: auto;
 
     &.dialog-content-branch .dialog-content-item {
-        .dialog-project-name {
-            text-align: left;
-            flex: 0 0 250px;
-            margin-right: 50px;
-        }
-
         span {
             white-space: nowrap;
-            margin-right: 10px;
+            margin-right: 40px;
         }
     }
 
@@ -247,7 +241,11 @@ watch(uniteInput, (val) => {
 
         .dialog-project-name {
             text-align: left;
-            flex: 0 0 300px;
+            flex: 0 0 250px;
+            margin-right: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .dialog-project-branch,
