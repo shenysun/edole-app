@@ -19,7 +19,7 @@
             </div>
         </q-slide-item>
         <div class="project-actions">
-            <all-branch :project-info="projectInfo"></all-branch>
+            <all-branch class="project-actions-select" :project-info="projectInfo" auto-check-branch></all-branch>
             <q-btn color="primary" icon="task" label="执行脚本">
                 <q-menu fit autoClose>
                     <q-list>
@@ -89,9 +89,9 @@ const onCreateBranch = () => {
     emit('create-branch', props.projectInfo);
 };
 
-const onMergeBranch = ()=> {
+const onMergeBranch = () => {
     emit('merge-branch', props.projectInfo);
-}
+};
 
 const onOpenFileClick = () => {
     electronExpose.shell.open({ cwd: cwd.value });

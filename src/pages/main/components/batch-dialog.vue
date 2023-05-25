@@ -1,7 +1,7 @@
 <template>
     <q-card class="batch-dialog">
         <q-card-section class="row items-center q-pb-none">
-            <div class="text-h6">批量{{ props.type === 'script' ? '执行脚本' : '创建分支' }}</div>
+            <div class="text-h6">批量{{ title }}</div>
             <q-space />
             <q-btn-dropdown outline auto-close label="一键配置" v-if="props.type === 'script'">
                 <q-list>
@@ -53,7 +53,6 @@
                     class="dialog-project-branch"
                     :project-info="info"
                     v-model:select="branchSelectInfo[info.projectName]"
-                    :auto-check-branch="false"
                 />
             </div>
         </q-card-section>
@@ -74,13 +73,11 @@ import { useGroupStore } from 'src/stores/group';
 import { useOSStore } from 'src/stores/os';
 import { useProjectStore } from 'src/stores/project';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
-import { BuildEnv } from '../meta';
+import { BatchType, BuildEnv, ExecStatus } from '../meta';
 import AllBranch from './all-branch.vue';
 
-// 执行状态 = 不执行 | 未开始 | 开始 | 成功 | 失败
-type ExecStatus = 'none' | 'not-start' | 'start' | 'success' | 'error';
 interface Props {
-    type: 'branch' | 'script' | '';
+    type: BatchType;
 }
 const props = defineProps<Props>();
 const os = useOSStore();
@@ -106,6 +103,19 @@ const scriptOptions = computed(() => {
     return (projectName: string) => {
         return [noneScript, ...(scriptsMap.value.get(projectName) || [])];
     };
+});
+
+const title = computed(() => {
+    switch (props.type) {
+        case 'script':
+            return '批量执行脚本';
+        case 'branch':
+            return '批量切换分支';
+        case 'merge':
+            return '批量合并分支';
+        default:
+            return '错误打开';
+    }
 });
 
 const onAutoPackClick = (type: BuildEnv) => {

@@ -5,6 +5,7 @@
             <q-btn class="project-add" color="teal" label="添加项目" @click="onAddClick"></q-btn>
             <q-btn class="project-script" color="teal" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
             <q-btn class="project-script" color="teal" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
+            <q-btn class="project-script" color="teal" label="批量合并分支" @click="batchType = 'merge'"></q-btn>
             <q-btn class="project-script" color="red-6" label="更新代码" @click="batchPullClick"></q-btn>
         </header>
         <q-separator style="margin: 20px 0"></q-separator>
@@ -44,7 +45,7 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
-import { ProjectInfo } from '../meta';
+import { BatchType, ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
 import { Loading, QBtn, QDialog, QSeparator } from 'quasar';
 import { electronExpose } from 'src/common/expose';
@@ -55,12 +56,11 @@ import { useGroupStore } from 'src/stores/group';
 import batchDialog from './batch-dialog.vue';
 import NewBranch from './new-branch.vue';
 import MergeBranch from './merge-branch.vue';
-import { on } from 'events';
 
 const store = useProjectStore();
 const groupStore = useGroupStore();
 const { currentProjectList, selectGroup } = storeToRefs(groupStore);
-const batchType = ref<'branch' | 'script' | ''>('');
+const batchType = ref<BatchType>('');
 const newBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 const mergeBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 const isShowBatch = computed({

@@ -10,11 +10,7 @@
 
         <q-card-section class="q-pt-none">
             <div class="text-h8">新分支基于（git checkout -b branch 'start-point'）</div>
-            <all-branch
-                v-model:select="startPointBranch"
-                :auto-check-branch="false"
-                :project-info="props.projectInfo!"
-            ></all-branch>
+            <all-branch v-model:select="startPointBranch" :project-info="props.projectInfo!"></all-branch>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">

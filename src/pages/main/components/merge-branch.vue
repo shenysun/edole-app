@@ -3,28 +3,8 @@
         <q-card-section>
             <div class="text-h6">合并</div>
             <div class="text-h8" style="margin-top: 10px">将这些分支</div>
-            <all-branch
-                v-for="(t, index) in fromCount"
-                :key="t"
-                :annnnnnn="t"
-                v-model:select="fromBranchList[index]"
-                :auto-check-branch="false"
-                :project-info="props.projectInfo!"
-            ></all-branch>
-            <q-btn-group push>
-                <q-btn
-                    @click="onCountChange(1)"
-                    style="margin-left: auto"
-                    size="xs"
-                    flat
-                    round
-                    color="primary"
-                    icon="add"
-                />
-                <q-btn @click="onCountChange(-1)" size="xs" flat round color="primary" icon="remove" />
-            </q-btn-group>
+            <all-branch :project-info="props.projectInfo!" v-model:select="fromBranchList" multiple />
         </q-card-section>
-
         <q-card-section class="q-pt-none">
             <div class="text-h8">合并到</div>
             <q-input
@@ -35,12 +15,7 @@
                 autofocus
                 placeholder="输入新的分支名"
             />
-            <all-branch
-                v-else
-                v-model:select="toBranchName"
-                :auto-check-branch="false"
-                :project-info="props.projectInfo!"
-            ></all-branch>
+            <all-branch v-else v-model:select="toBranchName" :project-info="props.projectInfo!"></all-branch>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -59,7 +34,7 @@ import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { remoteBranchToLocal } from 'src/common/utils/branch';
 import { useProjectItem } from 'src/composable/useProjectItem';
-import { reactive, ref, watch, watchEffect } from 'vue';
+import { ref } from 'vue';
 import { ProjectInfo } from '../meta';
 import AllBranch from './all-branch.vue';
 
@@ -72,8 +47,7 @@ const props = defineProps<Props>();
 const { cwd, updateBranches } = useProjectItem(props.projectInfo);
 const isNewBranch = ref(false);
 const toBranchName = ref('');
-const fromCount = ref(1);
-const fromBranchList = ref(['']);
+const fromBranchList = ref([]);
 
 const onMergeClick = async () => {
     console.log('onCreateClick');
@@ -83,26 +57,13 @@ const onMergeClick = async () => {
         await electronExpose.shell.git({ command: 'merge', cwd: cwd.value, mergeFrom, branch: toBranchName.value });
         updateBranches();
         emit('update:show', false);
+        toast.show('合并分支成功', 'done');
     } catch (error) {
         console.log('合并分支错误', error);
     } finally {
         Loading.hide();
     }
 };
-
-const onCountChange = (count: number) => {
-    const target = fromCount.value + count;
-    if (target < 1) {
-        return toast.show('至少有一个分支', 'error');
-    }
-    fromCount.value = Math.max(1, fromCount.value + count);
-};
-
-watchEffect(() => {
-    fromBranchList.value = new Array(fromCount.value).fill('').map((t, i) => {
-        return fromBranchList.value[i] || '';
-    });
-});
 </script>
 <style scoped lang="scss">
 .input-new {

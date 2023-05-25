@@ -39,4 +39,15 @@ export type BranchInfo = {
     current: string;
 };
 
+/**
+ * 工程构建环境
+ */
 export type BuildEnv = 'test:ld' | 'prod:ld' | 'test:sy' | 'prod:sy';
+/**
+ * 批量执行类型
+ */
+export type BatchType = 'branch' | 'script' | 'merge' | '';
+/**
+ * 执行状态 = 不执行 | 未开始 | 开始 | 成功 | 失败
+ */
+export type ExecStatus = 'none' | 'not-start' | 'start' | 'success' | 'error';

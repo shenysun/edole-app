@@ -1,11 +1,13 @@
 <template>
     <q-select
+        class="all-branch-select"
         v-if="branchInfo"
-        v-model="select"
-        class="project-actions-select"
-        filled
-        @filter="(_input, doneFn) => updateBranches(doneFn)"
+        :model-value="realSelect"
         :options="branchInfo.all"
+        :multiple="multiple"
+        filled
+        @update:model-value="onSelectChange"
+        @filter="(_input, doneFn) => updateBranches(doneFn)"
     ></q-select>
 </template>
 
@@ -20,45 +22,59 @@ import { useProjectStore } from 'src/stores/project';
 import { computed, nextTick, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 
+type MayBeArray<T> = T | T[];
 interface Props {
     projectInfo: ProjectInfo;
-    autoCheckBranch?: boolean; // 自动checkout
-    select?: string; // 如果 autoCheckBranch 为false 则使用select并且不改变current
+    select?: MayBeArray<string>;
+    multiple?: boolean;
+    autoCheckBranch?: boolean; // 自动checkout branch
 }
 
-const props = withDefaults(defineProps<Props>(), {
-    autoCheckBranch: true,
-});
+const props = defineProps<Props>();
 const emit = defineEmits(['update:select']);
 const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(projectName.value));
-const curSelect = ref('');
-const select = computed({
-    get: () => {
-        return props.autoCheckBranch ? branchInfo.value?.current : props.select;
-    },
-    set: (val) => {
-        curSelect.value = val ?? '';
-    },
+const realSelect = ref<MayBeArray<string>>(props.select || (props.multiple ? [] : ''));
+
+const hasSelect = computed(() => {
+    return Array.isArray(props.select) ? props.select.length > 0 : !!props.select;
 });
 
+const emitSelect = (val: unknown) => {
+    let result = val;
+    if (Array.isArray(props.select)) {
+        result = Array.isArray(val) ? val : [val];
+    } else {
+        result = Array.isArray(val) ? val[0] : val;
+    }
+
+    realSelect.value = result as MayBeArray<string>;
+    return emit('update:select', result);
+};
+
+const onSelectChange = (val: unknown) => {
+    emitSelect(val);
+};
+
+/**
+ * watch once current branch
+ */
 const cancel = watch(
     () => branchInfo.value?.current,
     (val) => {
-        curSelect.value = val ?? '';
-        if (curSelect.value) {
+        if (hasSelect.value) {
             nextTick(() => cancel());
+            return;
         }
 
-        if (!props.autoCheckBranch) {
-            emit('update:select', curSelect.value);
-        }
+        emitSelect(val);
     },
     {
         immediate: true,
     }
 );
+
 /**
  * 切换分支
  * @param branch
@@ -75,9 +91,13 @@ const checkoutBranch = async (branch: string) => {
     }
 };
 
-watch(curSelect, (val, pre) => {
+watch(realSelect, (val, pre) => {
     if (!props.autoCheckBranch) {
-        return emit('update:select', val);
+        return;
+    }
+
+    if (props.multiple || Array.isArray(val)) {
+        return;
     }
 
     if (!pre || !val) {
@@ -88,4 +108,8 @@ watch(curSelect, (val, pre) => {
     checkoutBranch(val);
 });
 </script>
-<style scoped></style>
+<style scoped>
+.all-branch-select {
+    width: 350px;
+}
+</style>
