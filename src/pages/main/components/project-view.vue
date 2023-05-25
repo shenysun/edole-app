@@ -15,6 +15,7 @@
                     :key="info.projectName"
                     @delete="onDeleteItem"
                     @create-branch="onShowCreateBranch"
+                    @merge-branch="onShowMergeBranch"
                     :project-info="info"
                 ></project-item>
             </template>
@@ -29,6 +30,13 @@
                 v-if="newBranchInfo.info"
                 @update:show="(val) => (newBranchInfo.show = val)"
                 :project-info="newBranchInfo.info"
+            />
+        </q-dialog>
+        <q-dialog v-model="mergeBranchInfo.show" persistent>
+            <merge-branch
+                v-if="mergeBranchInfo.info"
+                @update:show="(val) => (mergeBranchInfo.show = val)"
+                :project-info="mergeBranchInfo.info"
             />
         </q-dialog>
     </div>
@@ -46,12 +54,15 @@ import { storeToRefs } from 'pinia';
 import { useGroupStore } from 'src/stores/group';
 import batchDialog from './batch-dialog.vue';
 import NewBranch from './new-branch.vue';
+import MergeBranch from './merge-branch.vue';
+import { on } from 'events';
 
 const store = useProjectStore();
 const groupStore = useGroupStore();
 const { currentProjectList, selectGroup } = storeToRefs(groupStore);
 const batchType = ref<'branch' | 'script' | ''>('');
 const newBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
+const mergeBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 const isShowBatch = computed({
     get: () => batchType.value !== '',
     set: (val) => {
@@ -107,6 +118,11 @@ const onDeleteItem = (info: ProjectInfo) => {
 const onShowCreateBranch = (info: ProjectInfo) => {
     newBranchInfo.info = info;
     newBranchInfo.show = true;
+};
+
+const onShowMergeBranch = (info: ProjectInfo) => {
+    mergeBranchInfo.info = info;
+    mergeBranchInfo.show = true;
 };
 </script>
 <style lang="scss" scoped>

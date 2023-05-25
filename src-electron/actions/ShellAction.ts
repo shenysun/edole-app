@@ -55,29 +55,69 @@ export default class ShellAction {
             });
         });
 
-        ipcMain.handle(ShellEvent.git, async (e, { command, cwd, branch, startPoint }) => {
-            const gitManager = simpleGit(cwd);
-            // gitManager.diffSummary();
-            // 使用 gitManager 的 diff 方法, 输出冲突文件
-            // const m = await gitManager.diff(['--name-only', '--diff-filter=U']);
-            // gitManager.status();
-            // console.log(m);
-            try {
-                if (command === 'branch') {
-                    return await gitManager.branch();
-                } else if (command === 'checkout') {
-                    return await gitManager.checkout(branch);
-                } else if (command === 'pull') {
-                    return await gitManager.pull();
-                } else if (command === 'checkoutBranch') {
-                    // 如果startPoint为空, 则默认为当前分支
-                    startPoint = startPoint || (await gitManager.branch()).current;
-                    return await gitManager.checkoutBranch(branch, startPoint);
+        ipcMain.handle(
+            ShellEvent.git,
+            async (
+                e,
+                {
+                    command,
+                    cwd,
+                    branch,
+                    startPoint,
+                    mergeFrom,
+                }: {
+                    command: string;
+                    branch?: string;
+                    startPoint?: string;
+                    cwd: string;
+                    mergeFrom?: string[];
                 }
-            } catch (error) {
-                this.mainWindow.webContents.send('stderr', error);
+            ) => {
+                const gitManager = simpleGit(cwd);
+                    if (command === 'branch') {
+                        // 获取分支
+                        return await gitManager.branch();
+                    } else if (command === 'checkout') {
+                        // 切换分支
+                        if (!branch) {
+                            return false;
+                        }
+                        return await gitManager.checkout(branch);
+                    } else if (command === 'pull') {
+                        return await gitManager.pull();
+                    } else if (command === 'checkoutBranch') {
+                        // 创建分支
+                        if (!branch) {
+                            return false;
+                        }
+                        // 如果startPoint为空, 则默认为当前分支
+                        startPoint = startPoint || (await gitManager.branch()).current;
+                        return await gitManager.checkoutBranch(branch, startPoint);
+                    } else if (command === 'merge') {
+                        // 合并分支
+                        if (!mergeFrom || !mergeFrom.length || !branch) {
+                            return false;
+                        }
+
+                        // 串行执行 mergeFrom 分支的合并
+                        for await (const item of mergeFrom) {
+                            console.log('checkout item: ', item);
+                            await gitManager.checkout(item);
+                            console.log('pull item: ', item);
+                            await gitManager.pull();
+                            console.log('checkout branch: ', branch);
+                            await gitManager.checkout(branch);
+                            console.log('pull branch: ', branch);
+                            await gitManager.pull();
+                            console.log('merge from: ', item, ' to: ', branch);
+                            await gitManager.mergeFromTo(item, branch);
+                        }
+                    }
+                } catch (error) {
+                    return Promise.reject(error);
+                }
             }
-        });
+        );
 
         ipcMain.handle(ShellEvent.scriptList, async (e, { cwd }) => {
             try {

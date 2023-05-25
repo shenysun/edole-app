@@ -14,6 +14,7 @@
 import { QSelect } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
+import { remoteBranchToLocal } from 'src/common/utils/branch';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
 import { computed, nextTick, ref, watch } from 'vue';
@@ -63,10 +64,15 @@ const cancel = watch(
  * @param branch
  */
 const checkoutBranch = async (branch: string) => {
-    await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
-    await updateBranches();
-    branchInfo.value && (branchInfo.value.current = branch);
-    toast.show(`切换分支${branch}成功`, 'done');
+    try {
+        await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
+        await updateBranches();
+        branchInfo.value && (branchInfo.value.current = branch);
+        toast.show(`切换分支${branch}成功`, 'done');
+    } catch (error) {
+        console.log('切换分支错误', error);
+        toast.show(`切换分支${branch}失败 ${error}`, 'error');
+    }
 };
 
 watch(curSelect, (val, pre) => {
@@ -78,9 +84,7 @@ watch(curSelect, (val, pre) => {
         return;
     }
 
-    if (val.startsWith('remotes/origin/')) {
-        val = val.split('remotes/origin/')[1];
-    }
+    val = remoteBranchToLocal(val);
     checkoutBranch(val);
 });
 </script>

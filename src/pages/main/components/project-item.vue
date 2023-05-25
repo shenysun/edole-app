@@ -44,6 +44,11 @@
                             <q-item-label>创建分支</q-item-label>
                         </q-item-section>
                     </q-item>
+                    <q-item clickable @click="onMergeBranch">
+                        <q-item-section>
+                            <q-item-label>合并分支</q-item-label>
+                        </q-item-section>
+                    </q-item>
                 </q-list>
             </q-btn-dropdown>
         </div>
@@ -66,7 +71,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['delete', 'create-branch']);
+const emit = defineEmits(['delete', 'create-branch', 'merge-branch']);
 const store = useProjectStore();
 const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const scripts = computed(() => store.getScripts(projectName.value));
@@ -83,6 +88,10 @@ const onPullClick = async () => {
 const onCreateBranch = () => {
     emit('create-branch', props.projectInfo);
 };
+
+const onMergeBranch = ()=> {
+    emit('merge-branch', props.projectInfo);
+}
 
 const onOpenFileClick = () => {
     electronExpose.shell.open({ cwd: cwd.value });
