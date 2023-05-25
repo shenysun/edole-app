@@ -74,47 +74,39 @@ export default class ShellAction {
                 }
             ) => {
                 const gitManager = simpleGit(cwd);
-                    if (command === 'branch') {
-                        // 获取分支
-                        return await gitManager.branch();
-                    } else if (command === 'checkout') {
-                        // 切换分支
-                        if (!branch) {
-                            return false;
-                        }
-                        return await gitManager.checkout(branch);
-                    } else if (command === 'pull') {
-                        return await gitManager.pull();
-                    } else if (command === 'checkoutBranch') {
-                        // 创建分支
-                        if (!branch) {
-                            return false;
-                        }
-                        // 如果startPoint为空, 则默认为当前分支
-                        startPoint = startPoint || (await gitManager.branch()).current;
-                        return await gitManager.checkoutBranch(branch, startPoint);
-                    } else if (command === 'merge') {
-                        // 合并分支
-                        if (!mergeFrom || !mergeFrom.length || !branch) {
-                            return false;
-                        }
-
-                        // 串行执行 mergeFrom 分支的合并
-                        for await (const item of mergeFrom) {
-                            console.log('checkout item: ', item);
-                            await gitManager.checkout(item);
-                            console.log('pull item: ', item);
-                            await gitManager.pull();
-                            console.log('checkout branch: ', branch);
-                            await gitManager.checkout(branch);
-                            console.log('pull branch: ', branch);
-                            await gitManager.pull();
-                            console.log('merge from: ', item, ' to: ', branch);
-                            await gitManager.mergeFromTo(item, branch);
-                        }
+                if (command === 'branch') {
+                    // 获取分支
+                    return await gitManager.branch();
+                } else if (command === 'checkout') {
+                    // 切换分支
+                    if (!branch) {
+                        return false;
                     }
-                } catch (error) {
-                    return Promise.reject(error);
+                    return await gitManager.checkout(branch);
+                } else if (command === 'pull') {
+                    return await gitManager.pull();
+                } else if (command === 'checkoutBranch') {
+                    // 创建分支
+                    if (!branch) {
+                        return false;
+                    }
+                    // 如果startPoint为空, 则默认为当前分支
+                    startPoint = startPoint || (await gitManager.branch()).current;
+                    return await gitManager.checkoutBranch(branch, startPoint);
+                } else if (command === 'merge') {
+                    // 合并分支
+                    if (!mergeFrom || !mergeFrom.length || !branch) {
+                        return false;
+                    }
+
+                    // 串行执行 mergeFrom 分支的合并
+                    for await (const item of mergeFrom) {
+                        await gitManager.checkout(item);
+                        await gitManager.pull();
+                        await gitManager.checkout(branch);
+                        await gitManager.pull();
+                        await gitManager.mergeFromTo(item, branch);
+                    }
                 }
             }
         );
