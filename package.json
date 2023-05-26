@@ -9,7 +9,7 @@
         "lint": "eslint --ext .js,.ts,.vue ./",
         "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
         "test": "echo \"No test specified\" && exit 0",
-        "dev": "chcp 65001 && quasar dev -m electron",
+        "dev": "quasar dev -m electron",
         "dev-spa": "quasar dev -m spa",
         "build": "quasar build -m electron",
         "rebuild": "electron-rebuild"
