@@ -164,6 +164,7 @@ const batchBranch = async () => {
 const batchScript = async () => {
     isScriptExecuting.value = true;
     function dealPromise(name: string, p: Promise<unknown>) {
+        scriptExecInfo[name] = 'start';
         p.then(() => {
             scriptExecInfo[name] = 'success';
         }).catch(() => {
@@ -181,7 +182,6 @@ const batchScript = async () => {
                 if (command !== noneScript) {
                     const p = electronExpose.shell.script({ command, cwd });
                     dealPromise(projectName, p);
-                    scriptExecInfo[projectName] = 'start';
                     scrPromiseList.push(p);
                 }
             }
@@ -248,7 +248,7 @@ const execStatusToCN = (status: ExecStatus) => {
         case 'not-start':
             return '未开始';
         case 'start':
-            return '开始';
+            return '执行中';
         case 'success':
             return '成功';
         case 'error':

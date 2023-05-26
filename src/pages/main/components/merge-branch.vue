@@ -50,7 +50,6 @@ const toBranchName = ref('');
 const fromBranchList = ref([]);
 
 const onMergeClick = async () => {
-    console.log('onCreateClick');
     const mergeFrom = fromBranchList.value.filter((t) => t).map((t) => remoteBranchToLocal(t));
     try {
         Loading.show();
