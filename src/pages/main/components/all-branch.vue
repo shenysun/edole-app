@@ -22,10 +22,10 @@ import { useProjectStore } from 'src/stores/project';
 import { computed, nextTick, ref, watch } from 'vue';
 import { ProjectInfo } from '../meta';
 
-type MayBeArray<T> = T | T[];
+type MyBeArrayString = string | string[];
 interface Props {
     projectInfo: ProjectInfo;
-    select?: MayBeArray<string>;
+    select?: MyBeArrayString;
     multiple?: boolean;
     autoCheckBranch?: boolean; // 自动checkout branch
 }
@@ -35,21 +35,21 @@ const emit = defineEmits(['update:select']);
 const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const store = useProjectStore();
 const branchInfo = computed(() => store.getBranchInfo(projectName.value));
-const realSelect = ref<MayBeArray<string>>(props.select || (props.multiple ? [] : ''));
+const realSelect = ref(props.select || (props.multiple ? [] : ''));
 
 const hasSelect = computed(() => {
-    return Array.isArray(props.select) ? props.select.length > 0 : !!props.select;
+    return props.multiple && Array.isArray(props.select) ? props.select.length > 0 : !!props.select;
 });
 
 const emitSelect = (val: unknown) => {
     let result = val;
-    if (Array.isArray(props.select)) {
+    if (props.multiple) {
         result = Array.isArray(val) ? val : [val];
     } else {
         result = Array.isArray(val) ? val[0] : val;
     }
 
-    realSelect.value = result as MayBeArray<string>;
+    realSelect.value = result as MyBeArrayString;
     return emit('update:select', result);
 };
 

@@ -25,7 +25,7 @@
             <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-card-section class="dialog-content dialog-content-script" v-if="props.type === 'script'">
-            <div v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
+            <q-item v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
                 <span class="dialog-project-name">{{ info.projectName }}</span>
                 <q-select
                     v-model="scriptSelectInfo[info.projectName]"
@@ -41,10 +41,10 @@
                     }}</span>
                     <!-- <q-icon :name="execStatusToIcon(scriptExecInfo[info.projectName])"></q-icon> -->
                 </div>
-            </div>
+            </q-item>
         </q-card-section>
         <q-card-section class="dialog-content dialog-content-branch" v-else-if="props.type === 'branch'">
-            <div v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
+            <q-item v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
                 <span class="dialog-project-name">{{ info.projectName }}</span>
                 <span>新分支</span>
                 <q-input dense v-model="branchInputInfo[info.projectName]" placeholder="输入新的分支名" autofocus />
@@ -54,7 +54,25 @@
                     :project-info="info"
                     v-model:select="branchSelectInfo[info.projectName]"
                 />
-            </div>
+            </q-item>
+        </q-card-section>
+        <q-card-section class="dialog-content dialog-content-merge" v-else-if="props.type === 'merge'">
+            <q-item v-for="info in currentProjectList" :key="info.projectName" class="dialog-content-item">
+                <span class="dialog-project-name">{{ info.projectName }}</span>
+                <span>将</span>
+                <all-branch
+                    class="dialog-project-branch"
+                    :project-info="info"
+                    v-model:select="mergeFromInfo[info.projectName]"
+                    multiple
+                />
+                <span>合并到</span>
+                <all-branch
+                    class="dialog-project-branch"
+                    :project-info="info"
+                    v-model:select="mergeToInfo[info.projectName]"
+                />
+            </q-item>
         </q-card-section>
         <q-separator></q-separator>
         <q-card-section class="dialog-actions">
@@ -64,7 +82,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Loading, QBtn, QBtnDropdown, QCard, QCardSection, QSelect, QSeparator, QSpace } from 'quasar';
+import { Dialog, Loading, QBtn, QBtnDropdown, QCard, QCardSection, QSelect, QSeparator, QSpace } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
@@ -75,6 +93,7 @@ import { useProjectStore } from 'src/stores/project';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { BatchType, BuildEnv, ExecStatus } from '../meta';
 import AllBranch from './all-branch.vue';
+import { remoteBranchToLocal } from 'src/common/utils/branch';
 
 interface Props {
     type: BatchType;
@@ -94,10 +113,15 @@ const quickConfigMap = ref<{ type: BuildEnv; label: string }[]>([
 ]);
 const uniteInput = ref('');
 const isScriptExecuting = ref(false);
+// 执行脚本相关
 const scriptSelectInfo = reactive<Record<string, string>>({});
 const scriptExecInfo = reactive<Record<string, ExecStatus>>({});
+// 创建分支相关
 const branchSelectInfo = reactive<Record<string, string>>({});
 const branchInputInfo = reactive<Record<string, string>>({});
+// 合并分支相关
+const mergeFromInfo = reactive<Record<string, string[]>>({});
+const mergeToInfo = reactive<Record<string, string>>({});
 
 const scriptOptions = computed(() => {
     return (projectName: string) => {
@@ -124,6 +148,53 @@ const onAutoPackClick = (type: BuildEnv) => {
         const command = getBuildCommand(projectName, type, os.platform);
         scriptSelectInfo[projectName] = command;
     });
+};
+
+const batchMerge = async () => {
+    const mergeInfoList = Object.entries(mergeFromInfo)
+        .map(([projectName, fromBranchList]) => {
+            const toBranchName = mergeToInfo[projectName];
+            const cwd = groupStore.getProjectCwd(projectName);
+            if (cwd && toBranchName) {
+                const mergeFrom = fromBranchList.filter((t) => t).map((t) => remoteBranchToLocal(t));
+                return { cwd, mergeFrom, branch: toBranchName };
+            }
+        })
+        .filter((t) => t);
+
+    if (mergeInfoList.length) {
+        async function mergeFn() {
+            try {
+                Loading.show();
+                const promiseList: Array<Promise<unknown>> = [];
+                for (const mergeInfo of mergeInfoList) {
+                    if (mergeInfo) {
+                        const { cwd, mergeFrom, branch } = mergeInfo;
+                        promiseList.push(electronExpose.shell.git({ command: 'merge', cwd, mergeFrom, branch }));
+                    }
+                }
+                await Promise.allSettled(promiseList);
+                toast.show('合并分支成功', 'done');
+            } catch (error) {
+                console.log('合并分支错误', error);
+            } finally {
+                Loading.hide();
+            }
+        }
+
+        Dialog.create({
+            title: '确认',
+            html: true,
+            message: `<pre>${mergeInfoList
+                .map((t) => `将${t?.mergeFrom.join(' ')} 合并到${t?.branch};`)
+                .join('\n')}</pre>`,
+            ok: '确认',
+            cancel: '取消',
+        }).onOk(() => {
+            console.log(`${mergeInfoList.map((t) => `将${t?.mergeFrom.join(' ')} 合并到${t?.branch}`).join('\n')};`);
+            mergeFn();
+        });
+    }
 };
 
 const batchBranch = async () => {
@@ -217,6 +288,9 @@ const onBatchActionClick = () => {
             break;
         case 'branch':
             batchBranch();
+            break;
+        case 'merge':
+            batchMerge();
             break;
 
         default:
