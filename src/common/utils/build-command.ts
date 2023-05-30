@@ -7,6 +7,10 @@ export const coursewarelibraryPlatform = {
     win32: 'buildwin:local',
     darwin: 'build:local',
 };
+export const dataviewlibraryPlatform = {
+    win32: 'libwin:test',
+    darwin: 'lib:test',
+};
 
 export const baselibraryBuildEnv: Record<BuildEnv, string> = {
     'test:ld': 'build:test',
@@ -24,20 +28,16 @@ export const getBuildCommand = (projectName: string, env: BuildEnv, platform: st
         return (coursewarelibraryPlatform as never)[platform];
     }
 
+    if (projectName.indexOf('dataviewlibrary') > -1) {
+        return (dataviewlibraryPlatform as never)[platform];
+    }
+
     if (projectName.indexOf('baseframe') > -1) {
         return noneScript;
     }
 
     if (projectName.indexOf('messagebox') > -1) {
         return mbBuildCommand;
-    }
-
-    if (projectName.indexOf('dataview') > -1) {
-        if (platform === 'win32') {
-            return noneScript;
-        }
-
-        return 'lib:test';
     }
 
     return defaultBuildCommand;
