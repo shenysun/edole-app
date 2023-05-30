@@ -148,16 +148,9 @@ export default class ShellAction {
             async (e, data: { root: RootName; cwd: string; file: string; content: string }) => {
                 const { root, cwd, file, content } = data;
                 const p = path.join(app.getPath(root), cwd, file || '');
-                // writeFile(p, content, {
-                //     encoding: 'utf-8',
-                // });
-                try {
-                    await promises.writeFile(p, content, {
-                        encoding: 'utf-8',
-                    });
-                } catch (error) {
-                    this.mainWindow.webContents.send('stderr', error);
-                }
+                return await promises.writeFile(p, content, {
+                    encoding: 'utf-8',
+                });
             }
         );
     }

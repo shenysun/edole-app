@@ -52,14 +52,19 @@ const onMenuAction = (_sender: unknown, args: { type: string; [key: string]: unk
                 ok: '确定',
                 persistent: true,
             }).onOk(async (data) => {
-                await electronExpose.shell.writeFile({
-                    root: 'home',
-                    cwd: `AppData/Local/owcrclient/wcropenclassroom/localpages/${dirName}`,
-                    file: 'index.html',
-                    content: getLocalRootFile(data),
-                });
-                href.value = data;
-                toast.show('修改成功', 'done');
+                try {
+                    await electronExpose.shell.writeFile({
+                        root: 'home',
+                        cwd: `AppData/Local/owcrclient/wcropenclassroom/localpages/${dirName}`,
+                        file: 'index.html',
+                        content: getLocalRootFile(data),
+                    });
+
+                    href.value = data;
+                    toast.show('修改成功', 'done');
+                } catch (error) {
+                    toast.show('修改失败', 'error');
+                }
             });
 
             break;
