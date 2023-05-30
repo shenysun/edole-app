@@ -9,10 +9,6 @@
         </q-header>
 
         <q-drawer show-if-above v-model="leftDrawerOpen" side="left">
-            <q-toolbar class="bg-white text-primary">
-                <q-toolbar-title> 项目管理工具 </q-toolbar-title>
-                <q-btn outline round size="xs" icon="add" @click="dialogShow = true" />
-            </q-toolbar>
             <project-group />
         </q-drawer>
 

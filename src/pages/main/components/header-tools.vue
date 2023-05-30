@@ -1,10 +1,10 @@
 <template>
     <div class="project-header">
-        <q-btn class="tools-btn" color="primary" label="添加项目" @click="onAddClick"></q-btn>
-        <q-btn class="tools-btn" color="primary" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
-        <q-btn class="tools-btn" color="primary" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
-        <q-btn class="tools-btn" color="primary" label="批量合并分支" @click="batchType = 'merge'"></q-btn>
-        <q-btn class="tools-btn" color="primary" label="更新代码" @click="batchPullClick"></q-btn>
+        <q-btn size="sm" class="tools-btn" color="primary" label="添加项目" @click="onAddClick"></q-btn>
+        <q-btn size="sm" class="tools-btn" color="primary" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
+        <q-btn size="sm" class="tools-btn" color="primary" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
+        <q-btn size="sm" class="tools-btn" color="primary" label="批量合并分支" @click="batchType = 'merge'"></q-btn>
+        <q-btn size="sm" class="tools-btn" color="primary" label="更新代码" @click="batchPullClick"></q-btn>
     </div>
     <q-dialog v-model="isShowBatch" persistent>
         <batch-dialog :type="batchType"></batch-dialog>
