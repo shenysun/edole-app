@@ -1,4 +1,5 @@
 const { createWindowsInstaller } = require('electron-winstaller');
+const createDMG = require('electron-installer-dmg');
 const { remove } = require('fs-extra');
 const path = require('path');
 const package = require('../package.json');
@@ -12,15 +13,14 @@ const getWindowsArch = () => {
 // 获取 platform
 const getPlatform = () => {
     const platform = process.env.npm_config_platform || process.platform;
-    return platform === 'darwin' ? 'osx' : platform;
+    return platform;
 };
 
-console.log(getWindowsArch());
 async function main() {
     const rootPath = path.join('./');
-    const outPath = path.join(rootPath, 'dist/electron/Installer');
-    remove(outPath);
     const platform = getPlatform();
+    const outPath = path.join(rootPath, 'dist/electron/Installer', platform);
+    remove(outPath);
     const exeDirname = `${package.name}-${platform}-${getWindowsArch()}`;
     console.log('安装包目录：', exeDirname);
 
@@ -29,13 +29,19 @@ async function main() {
         await createWindowsInstaller({
             appDirectory: path.join(rootPath, 'dist/electron/Packaged/' + exeDirname),
             noMsi: true,
-            outputDirectory: path.join(outPath, process.platform),
+            outputDirectory: outPath,
             usePackageJson: true,
             loadingGift: path.join(rootPath, 'build/loading.gif'),
         });
     } else if (platform === 'darwin') {
+        console.log('正在生成 MAC 安装包...');
+        await createDMG({
+            appPath: path.join(rootPath, 'dist/electron/Packaged/' + exeDirname + '/' + package.name + '.app'),
+            name: package.name,
+            out: outPath,
+        });
     }
-    console.log('生成完毕');
+    console.log('生成安装包完毕');
 }
 
 main();
