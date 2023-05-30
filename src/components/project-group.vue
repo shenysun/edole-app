@@ -1,11 +1,4 @@
 <template>
-    <q-toolbar class="bg-grey-3">
-        <q-toolbar-title>
-            <q-icon name="done"></q-icon>
-            项目管理工具
-        </q-toolbar-title>
-        <q-btn outline round size="xs" icon="add" @click="dialogShow = true" />
-    </q-toolbar>
     <q-list>
         <template v-for="gName in groupNameList" :key="gName">
             <q-item

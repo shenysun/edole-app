@@ -38,7 +38,7 @@ function createWindow() {
         w: 0,
         h: 0,
     };
-    const scale = 3 / 5;
+    const scale = 1 / 2;
     if (display) {
         const w = Math.round(display.workAreaSize.width * scale);
         const h = Math.round(display.workAreaSize.height * scale);
@@ -77,9 +77,9 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     } else {
         // we're on production; no access to devtools pls
-        mainWindow.webContents.on('devtools-opened', () => {
-            mainWindow?.webContents.closeDevTools();
-        });
+        // mainWindow.webContents.on('devtools-opened', () => {
+        //     mainWindow?.webContents.closeDevTools();
+        // });
     }
 
     mainWindow.on('closed', () => {

@@ -2,7 +2,6 @@
     <div class="manager">
         <project-view></project-view>
         <q-separator></q-separator>
-        <logger-view></logger-view>
     </div>
 </template>
 
@@ -11,7 +10,6 @@ import { QSeparator } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import { useOSStore } from 'src/stores/os';
 import { onMounted } from 'vue';
-import LoggerView from './components/logger-view.vue';
 import ProjectView from './components/project-view.vue';
 
 const os = useOSStore();

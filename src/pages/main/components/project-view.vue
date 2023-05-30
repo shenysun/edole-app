@@ -1,14 +1,5 @@
 <template>
     <div class="project-view">
-        <header class="project-header">
-            <span class="project-title">项目</span>
-            <q-btn class="project-add" color="teal" label="添加项目" @click="onAddClick"></q-btn>
-            <q-btn class="project-script" color="teal" label="批量执行脚本" @click="batchType = 'script'"></q-btn>
-            <q-btn class="project-script" color="teal" label="批量创建分支" @click="batchType = 'branch'"></q-btn>
-            <q-btn class="project-script" color="teal" label="批量合并分支" @click="batchType = 'merge'"></q-btn>
-            <q-btn class="project-script" color="red-6" label="更新代码" @click="batchPullClick"></q-btn>
-        </header>
-        <q-separator style="margin: 20px 0"></q-separator>
         <div class="project-item-wrapper">
             <template v-if="currentProjectList?.length">
                 <project-item
@@ -23,9 +14,6 @@
             <div v-else class="none-peoject absolute-center">空空如也，快去添加项目吧！</div>
         </div>
 
-        <q-dialog v-model="isShowBatch" persistent>
-            <batch-dialog :type="batchType"></batch-dialog>
-        </q-dialog>
         <q-dialog v-model="newBranchInfo.show" persistent>
             <new-branch
                 v-if="newBranchInfo.info"
@@ -44,70 +32,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue';
-import { BatchType, ProjectInfo } from '../meta';
+import { reactive } from 'vue';
+import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
-import { Loading, QBtn, QDialog, QSeparator } from 'quasar';
-import { electronExpose } from 'src/common/expose';
-import toast from 'src/common/toast';
+import { QDialog, QSeparator } from 'quasar';
 import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
 import { useGroupStore } from 'src/stores/group';
-import batchDialog from './batch-dialog.vue';
 import NewBranch from './new-branch.vue';
 import MergeBranch from './merge-branch.vue';
 
 const store = useProjectStore();
 const groupStore = useGroupStore();
-const { currentProjectList, selectGroup } = storeToRefs(groupStore);
-const batchType = ref<BatchType>('');
+const { currentProjectList } = storeToRefs(groupStore);
 const newBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
 const mergeBranchInfo = reactive<{ show: boolean; info?: ProjectInfo }>({ show: false });
-const isShowBatch = computed({
-    get: () => batchType.value !== '',
-    set: (val) => {
-        if (!val) {
-            batchType.value = '';
-        }
-    },
-});
-
-const onAddClick = async () => {
-    if (!selectGroup.value) {
-        toast.show('请先添加一个组', 'error');
-        return;
-    }
-    const projectInfoList = await electronExpose.shell.dialog();
-    const curAddList = [];
-    for (const projectInfo of projectInfoList) {
-        const res = groupStore.addGroupProject(projectInfo);
-        if (res) {
-            curAddList.push(projectInfo.projectName);
-        }
-    }
-
-    if (!curAddList.length) {
-        return;
-    }
-    toast.show(`${curAddList.join(',')} 项目添加成功`, 'done');
-};
-
-const batchPullClick = async () => {
-    const list: Array<Promise<unknown>> = [];
-    currentProjectList.value?.forEach((projectInfo) => {
-        list.push(electronExpose.shell.git({ command: 'pull', cwd: projectInfo.path }));
-    });
-
-    Loading.show({ message: '批量更新代码中' });
-    try {
-        await Promise.all(list);
-        toast.show('批量更新代码成功', 'done');
-    } catch (error) {
-        toast.show('批量更新代码失败', 'error');
-    } finally {
-        Loading.hide();
-    }
-};
 
 const onDeleteItem = (info: ProjectInfo) => {
     groupStore.removeGroupProject(info);
@@ -130,22 +69,6 @@ const onShowMergeBranch = (info: ProjectInfo) => {
     display: flex;
     flex-direction: column;
     padding: 30px 20px 0;
-    .project-header {
-        display: flex;
-        align-items: center;
-
-        .project-title {
-            font-size: 28px;
-        }
-
-        .project-add {
-            margin-left: auto;
-        }
-
-        .project-script {
-            margin-left: 12px;
-        }
-    }
 
     .project-item-wrapper {
         position: relative;

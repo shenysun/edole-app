@@ -1,13 +1,18 @@
 <template>
     <q-layout view="lhh lpR fFf">
-        <q-header elevated class="layout-header bg-grey-3 text-grey">
+        <q-header elevated class="layout-header bg-white text-primary">
             <q-toolbar class="layout-toolbar">
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
                 <q-toolbar-title class="layout-toolbar-title"> {{ selectGroup }} </q-toolbar-title>
+                <header-tools />
             </q-toolbar>
         </q-header>
 
-        <q-drawer class="" show-if-above v-model="leftDrawerOpen" side="left" bordered>
+        <q-drawer show-if-above v-model="leftDrawerOpen" side="left">
+            <q-toolbar class="bg-white text-primary">
+                <q-toolbar-title> 项目管理工具 </q-toolbar-title>
+                <q-btn outline round size="xs" icon="add" @click="dialogShow = true" />
+            </q-toolbar>
             <project-group />
         </q-drawer>
 
@@ -20,6 +25,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import ProjectGroup from 'components/project-group.vue';
+import HeaderTools from 'src/pages/main/components/header-tools.vue';
 import { useGroupStore } from 'src/stores/group';
 import { storeToRefs } from 'pinia';
 
@@ -38,7 +44,6 @@ const toggleLeftDrawer = () => {
         // min-height: 35px;
 
         .layout-toolbar-title {
-            font-size: 22px;
         }
     }
 }
