@@ -17,6 +17,7 @@
     "dependencies": {
         "@quasar/extras": "^1.0.0",
         "@vueuse/core": "^10.0.2",
+        "electron-squirrel-startup": "^1.0.0",
         "fix-path": "3",
         "line-column-path": "2.0.0",
         "open-editor": "3",
