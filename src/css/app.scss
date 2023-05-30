@@ -1,1 +1,19 @@
 // app global css in SCSS form
+#q-app {
+    min-width: 710px;
+    overflow: auto;
+}
+
+.q-select {
+    width: 350px;
+    .q-field__inner {
+        .q-field__marginal {
+            height: 40px;
+        }
+
+        .q-field__control,
+        .q-field__native {
+            min-height: 40px;
+        }
+    }
+}

@@ -187,17 +187,6 @@ watch(
 
         .project-actions-select {
             width: 200px;
-
-            :deep(.q-field__inner) {
-                .q-field__marginal {
-                    height: 40px;
-                }
-
-                .q-field__control,
-                .q-field__native {
-                    min-height: 40px;
-                }
-            }
         }
     }
 }

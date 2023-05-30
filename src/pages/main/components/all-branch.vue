@@ -108,8 +108,4 @@ watch(realSelect, (val, pre) => {
     checkoutBranch(val);
 });
 </script>
-<style scoped>
-.all-branch-select {
-    width: 350px;
-}
-</style>
+<style scoped lang="scss"></style>

@@ -392,7 +392,6 @@ watch(uniteInput, (val) => {
     .dialog-content-item {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
 
         & > * {
             &:not(:last-child) {
@@ -418,16 +417,6 @@ watch(uniteInput, (val) => {
         .dialog-project-branch,
         .dialog-project-scripts {
             width: 250px;
-            :deep(.q-field__inner) {
-                .q-field__marginal {
-                    height: 40px;
-                }
-
-                .q-field__control,
-                .q-field__native {
-                    min-height: 40px;
-                }
-            }
         }
     }
 }
