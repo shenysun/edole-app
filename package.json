@@ -11,7 +11,7 @@
         "test": "echo \"No test specified\" && exit 0",
         "dev": "quasar dev -m electron",
         "dev-spa": "quasar dev -m spa",
-        "build": "quasar build -m electron",
+        "build": "quasar build -m electron && node ./build/build-installer.js",
         "rebuild": "electron-rebuild"
     },
     "dependencies": {
@@ -34,6 +34,7 @@
         "autoprefixer": "^10.4.2",
         "electron": "^24.1.2",
         "electron-packager": "^15.2.0",
+        "electron-winstaller": "^5.1.0",
         "eslint": "^8.10.0",
         "eslint-config-prettier": "^8.1.0",
         "eslint-plugin-vue": "^9.0.0",
