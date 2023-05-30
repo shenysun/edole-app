@@ -92,6 +92,13 @@ export default class ShellAction {
                     }
                     // 如果startPoint为空, 则默认为当前分支
                     startPoint = startPoint || (await gitManager.branch()).current;
+                    // // 创建分支并提交到远程
+                    // await gitManager.checkout(startPoint);
+                    // await gitManager.pull();
+                    // await gitManager.checkoutLocalBranch(branch);
+                    await gitManager.push('origin', branch);
+                    // 切换到新分支
+
                     return await gitManager.checkoutBranch(branch, startPoint);
                 } else if (command === 'merge') {
                     // 合并分支
