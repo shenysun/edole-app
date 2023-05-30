@@ -85,7 +85,7 @@ export default class ShellAction {
                     return await gitManager.checkout(branch);
                 } else if (command === 'pull') {
                     return await gitManager.pull();
-                } else if (command === 'checkoutBranch') {
+                } else if (command === 'checkoutBranch' || command === 'checkoutRemoteBranch') {
                     // 创建分支
                     if (!branch) {
                         return false;
@@ -93,13 +93,12 @@ export default class ShellAction {
                     // 如果startPoint为空, 则默认为当前分支
                     startPoint = startPoint || (await gitManager.branch()).current;
                     // // 创建分支并提交到远程
-                    // await gitManager.checkout(startPoint);
-                    // await gitManager.pull();
-                    // await gitManager.checkoutLocalBranch(branch);
-                    await gitManager.push('origin', branch);
-                    // 切换到新分支
-
-                    return await gitManager.checkoutBranch(branch, startPoint);
+                    await gitManager.checkout(startPoint);
+                    await gitManager.pull();
+                    await gitManager.checkoutLocalBranch(branch);
+                    if (command === 'checkoutRemoteBranch') {
+                        await gitManager.push('origin', branch, ['--set-upstream']);
+                    }
                 } else if (command === 'merge') {
                     // 合并分支
                     if (!mergeFrom || !mergeFrom.length || !branch) {

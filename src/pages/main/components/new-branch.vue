@@ -7,10 +7,12 @@
         <q-card-section class="q-pt-none">
             <q-input dense v-model="branchName" autofocus />
         </q-card-section>
-
         <q-card-section class="q-pt-none">
             <div class="text-h8">新分支基于（git checkout -b branch 'start-point'）</div>
             <all-branch v-model:select="startPointBranch" :project-info="props.projectInfo!"></all-branch>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+            <q-checkbox v-model="createRemote" label="提交到远端" />
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -21,6 +23,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Loading } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
@@ -37,6 +40,7 @@ const props = defineProps<Props>();
 const { cwd, updateBranches } = useProjectItem(props.projectInfo);
 const branchName = ref('');
 const startPointBranch = ref('');
+const createRemote = ref(false);
 
 const onCreateClick = async () => {
     if (!branchName.value) {
@@ -48,13 +52,16 @@ const onCreateClick = async () => {
     if (val.startsWith('remotes/')) {
         val = val.split('remotes/')[1];
     }
+
+    Loading.show({ message: '创建分支中...' });
     // 创建分支
     await electronExpose.shell.git({
-        command: 'checkoutBranch',
+        command: createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch',
         branch: branchName.value,
         startPoint: val,
         cwd: cwd.value || '',
     });
+    Loading.hide();
     emit('update:show', false);
     toast.show(`创建分支${branchName.value}成功`, 'done');
     updateBranches();

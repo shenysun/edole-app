@@ -14,13 +14,11 @@
                     </template>
                 </q-list>
             </q-btn-dropdown>
-            <q-input
-                v-else-if="props.type === 'branch'"
-                dense
-                v-model="uniteInput"
-                placeholder="输入新的分支名"
-                autofocus
-            />
+            <div class="row items-center" v-else-if="props.type === 'branch'">
+                <span>统一分支名字：</span>
+                <q-input dense v-model="uniteInput" placeholder="输入新的分支名" autofocus />
+                <q-checkbox v-model="createRemote" label="提交到远端" />
+            </div>
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -111,12 +109,13 @@ const quickConfigMap = ref<{ type: BuildEnv; label: string }[]>([
     { type: 'test:sy', label: '素养--测试环境' },
     { type: 'prod:sy', label: '素养--生产环境' },
 ]);
-const uniteInput = ref('');
 const isScriptExecuting = ref(false);
 // 执行脚本相关
 const scriptSelectInfo = reactive<Record<string, string>>({});
 const scriptExecInfo = reactive<Record<string, ExecStatus>>({});
 // 创建分支相关
+const createRemote = ref(false);
+const uniteInput = ref(''); // 统一分支名字
 const branchSelectInfo = reactive<Record<string, string>>({});
 const branchInputInfo = reactive<Record<string, string>>({});
 // 合并分支相关
@@ -165,7 +164,9 @@ const batchMerge = async () => {
     if (mergeInfoList.length) {
         async function mergeFn() {
             try {
-                Loading.show();
+                Loading.show({
+                    message: '批量合并分支中',
+                });
                 const promiseList: Array<Promise<unknown>> = [];
                 for (const mergeInfo of mergeInfoList) {
                     if (mergeInfo) {
@@ -207,7 +208,7 @@ const batchBranch = async () => {
             if (branch) {
                 list.push(
                     electronExpose.shell.git({
-                        command: 'checkoutBranch',
+                        command: createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch',
                         branch,
                         startPoint: branchSelectInfo[projectName],
                         cwd,
