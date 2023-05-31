@@ -10,25 +10,25 @@ jobs:
         name: build and release electron app
         runs-on: ubuntu-latest
 
-    steps:
-        - uses: actions/checkout@v3
+        steps:
+            - uses: actions/checkout@v3
 
-        - uses: actions/setup-node@v3
-          with:
-              node-version: 18.16.0
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18.16.0
 
-        - run: yarn
+            - run: yarn
 
-        - run: yarn run build
+            - run: yarn run build
 
-        - uses: actions/upload-artifact@v3.0.0
-          with:
-              name: ${{ matrix.os }}
-              path: dist/electron/Installer
+            - uses: actions/upload-artifact@v3.0.0
+              with:
+                  name: ${{ matrix.os }}
+                  path: dist/electron/Installer
 
-        - uses: softprops/action-gh-release@v0.1.14
-          if: startsWith(github.ref, 'refs/tags/')
-          with:
-              files: 'dist/electron/Installer/**'
-          env:
-              GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+            - uses: softprops/action-gh-release@v0.1.14
+              if: startsWith(github.ref, 'refs/tags/')
+              with:
+                  files: 'dist/electron/Installer/**'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
