@@ -8,7 +8,10 @@ on:
 jobs:
     release:
         name: build and release electron app
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
 
         steps:
             - uses: actions/checkout@v3
