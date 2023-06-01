@@ -68,7 +68,7 @@ const onShowMergeBranch = (info: ProjectInfo) => {
 .project-view {
     display: flex;
     flex-direction: column;
-    padding: 30px 20px 0;
+    padding: 30px 0 0 20px;
 
     .project-item-wrapper {
         position: relative;
