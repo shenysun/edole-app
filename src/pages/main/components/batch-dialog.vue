@@ -64,7 +64,7 @@
                     v-model:select="mergeFromInfo[info.projectName]"
                     multiple
                 />
-                <span>合并到</span>
+                <span style="white-space: nowrap">合并到</span>
                 <all-branch
                     class="dialog-project-branch"
                     :project-info="info"
@@ -408,7 +408,7 @@ watch(uniteInput, (val) => {
 
         .dialog-project-name {
             text-align: left;
-            flex: 0 0 250px;
+            flex: 0 1 250px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
