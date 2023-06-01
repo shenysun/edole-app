@@ -1,6 +1,7 @@
 const { createWindowsInstaller } = require('electron-winstaller');
 const createDMG = require('electron-installer-dmg');
 const { remove } = require('fs-extra');
+const { promises } = require('fs');
 const path = require('path');
 const { zip } = require('compressing');
 const package = require('../package.json');
@@ -21,9 +22,9 @@ async function main() {
     const rootPath = path.join('./');
     const platform = getPlatform();
     const outPath = path.join(rootPath, 'dist/electron/Installer', platform);
-    remove(outPath);
+    await remove(outPath);
     const exeDirname = `${package.name}-${platform}-${getWindowsArch()}`;
-    const appDirectory = path.join(rootPath, 'dist/electron/Packaged/' + exeDirname)
+    const appDirectory = path.join(rootPath, 'dist/electron/Packaged/' + exeDirname);
     console.log('安装包目录：', appDirectory);
     if (platform === 'win32') {
         console.log('开始生成 windows 安装包...');
@@ -34,6 +35,16 @@ async function main() {
             usePackageJson: true,
             loadingGift: path.join(rootPath, 'build/loading.gif'),
         });
+
+        const files = await promises.readdir(outPath);
+        const promiseList = [];
+        console.log('windows 打包生成文件列表:', files);
+        for (const file of files) {
+            if (path.extname(file) !== '.exe') {
+                promiseList.push(remove(path.join(outPath, file)));
+            }
+        }
+        await Promise.all(promiseList);
     } else if (platform === 'darwin') {
         console.log('开始生成 MAC 安装包...');
         await createDMG({
