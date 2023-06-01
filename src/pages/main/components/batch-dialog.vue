@@ -3,23 +3,6 @@
         <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">批量{{ title }}</div>
             <q-space />
-            <q-btn-dropdown outline auto-close label="一键配置" v-if="props.type === 'script'">
-                <q-list>
-                    <template v-for="item in quickConfigMap" :key="item.type">
-                        <q-item clickable @click="onAutoPackClick(item.type)">
-                            <q-item-section>
-                                <q-item-label>{{ item.label }}</q-item-label>
-                            </q-item-section>
-                        </q-item>
-                    </template>
-                </q-list>
-            </q-btn-dropdown>
-            <div class="row items-center" v-else-if="props.type === 'branch'">
-                <span>统一分支名字：</span>
-                <q-input dense v-model="uniteInput" placeholder="输入新的分支名" autofocus />
-                <q-checkbox v-model="createRemote" label="提交到远端" />
-            </div>
-            <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-card-section class="dialog-content dialog-content-script" v-if="props.type === 'script'">
@@ -74,6 +57,22 @@
         </q-card-section>
         <q-separator></q-separator>
         <q-card-section class="dialog-actions">
+            <q-btn-dropdown auto-close label="一键配置" color="cyan" rounded v-if="props.type === 'script'">
+                <q-list>
+                    <template v-for="item in quickConfigMap" :key="item.type">
+                        <q-item clickable @click="onAutoPackClick(item.type)">
+                            <q-item-section>
+                                <q-item-label>{{ item.label }}</q-item-label>
+                            </q-item-section>
+                        </q-item>
+                    </template>
+                </q-list>
+            </q-btn-dropdown>
+            <div class="row items-center" v-else-if="props.type === 'branch'">
+                <span>统一分支名字：</span>
+                <q-input dense v-model="uniteInput" placeholder="输入新的分支名" autofocus />
+                <q-checkbox v-model="createRemote" color="cyan" label="提交到远端" />
+            </div>
             <q-btn
                 class="exec-btn"
                 color="cyan"
@@ -386,7 +385,7 @@ watch(uniteInput, (val) => {
     max-width: 100%;
 }
 .dialog-content {
-    height: 70vh;
+    height: 65vh;
     overflow: auto;
 
     &.dialog-content-branch .dialog-content-item {
@@ -423,7 +422,7 @@ watch(uniteInput, (val) => {
 
         .dialog-project-branch,
         .dialog-project-scripts {
-            width: 250px;
+            width: 210px;
         }
     }
 }
@@ -432,5 +431,11 @@ watch(uniteInput, (val) => {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    & > * {
+        &:not(:last-child) {
+            margin-right: 60px;
+        }
+    }
 }
 </style>
