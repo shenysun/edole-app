@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Dialog, QBtn, QIcon, QItem, QList, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
+import { Dialog, QIcon, QItem, QList, QSelect, QSeparator, QSlideItem, QTooltip } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
