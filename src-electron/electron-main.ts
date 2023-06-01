@@ -43,16 +43,15 @@ function init() {
             w: 0,
             h: 0,
         };
-        const scale = 1 / 2;
+        const standard = {
+            w: 1023,
+            h: 649,
+        };
         if (display) {
-            const w = Math.round(display.workAreaSize.width * scale);
-            const h = Math.round(display.workAreaSize.height * scale);
-            const x = Math.round(
-                display.bounds.x + (display.workAreaSize.width - display.workAreaSize.width * scale) / 2
-            );
-            const y = Math.round(
-                display.bounds.y + (display.workAreaSize.height - display.workAreaSize.height * scale) / 2
-            );
+            const w = standard.w;
+            const h = standard.h;
+            const x = Math.round(display.bounds.x + (display.workAreaSize.width - w) / 2);
+            const y = Math.round(display.bounds.y + (display.workAreaSize.height - h) / 2);
             bounds = {
                 x,
                 y,
