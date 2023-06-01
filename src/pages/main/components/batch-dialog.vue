@@ -74,7 +74,14 @@
         </q-card-section>
         <q-separator></q-separator>
         <q-card-section class="dialog-actions">
-            <q-btn color="secondary" label="批量执行" @click="onBatchActionClick"></q-btn>
+            <q-btn
+                class="exec-btn"
+                color="cyan"
+                icon="flight"
+                label="批量执行"
+                @click="onBatchActionClick"
+                rounded
+            ></q-btn>
         </q-card-section>
     </q-card>
 </template>

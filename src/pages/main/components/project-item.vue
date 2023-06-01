@@ -20,14 +20,28 @@
         </q-slide-item>
         <div class="project-actions">
             <all-branch class="project-actions-select" :project-info="projectInfo" auto-check-branch></all-branch>
-            <q-btn color="primary" icon="task" label="执行脚本">
-                <q-menu fit autoClose>
-                    <q-list>
-                        <q-item v-for="s in scripts" :key="s" clickable @click="onRunScript(s)"> {{ s }} </q-item>
-                    </q-list>
-                </q-menu>
-            </q-btn>
-            <q-btn-dropdown color="primary" label="更多操作" auto-close>
+            <q-btn-dropdown
+                class="tools-btn-dropdown"
+                color="primary"
+                label="执行脚本"
+                menu-anchor="bottom middle"
+                menu-self="top middle"
+                rounded
+                auto-close
+            >
+                <q-list>
+                    <q-item v-for="s in scripts" :key="s" clickable @click="onRunScript(s)"> {{ s }} </q-item>
+                </q-list>
+            </q-btn-dropdown>
+            <q-btn-dropdown
+                class="tools-btn-dropdown"
+                color="primary"
+                label="更多操作"
+                menu-anchor="bottom middle"
+                menu-self="top middle"
+                rounded
+                auto-close
+            >
                 <q-list>
                     <q-item clickable @click="onOpenClick">
                         <q-item-section>
@@ -183,6 +197,14 @@ watch(
 
         & > *:first-child {
             margin-left: auto;
+        }
+
+        .tools-btn-dropdown {
+            padding: 4px 4px 4px 12px;
+
+            :deep(.q-btn-dropdown__arrow) {
+                margin-left: 1px;
+            }
         }
 
         .project-actions-select {
