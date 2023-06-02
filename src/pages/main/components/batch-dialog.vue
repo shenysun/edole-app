@@ -406,9 +406,7 @@ watch(uniteInput, (val) => {
         }
 
         .project-status {
-            width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            min-width: 120px;
             white-space: nowrap;
         }
 
