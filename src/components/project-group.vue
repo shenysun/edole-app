@@ -71,7 +71,8 @@ const onDeleteGroup = (groupName: string) => {
 <style lang="scss" scoped>
 .group-item {
     &.active-item {
-        background-color: rgb(198, 208, 208);
+        color: #fff;
+        background-color: var(--q-primary);
     }
 
     .delete-group {

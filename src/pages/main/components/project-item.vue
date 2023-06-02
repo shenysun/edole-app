@@ -2,7 +2,7 @@
     <div class="project-item">
         <q-slide-item
             rightColor="grey-7"
-            @right="({ reset }) => onDeleteItem(props.projectInfo, reset)"
+            @right="({ reset }) => onDeleteItem(projectInfo, reset)"
             @click="onOpenFileClick"
         >
             <template v-slot:right>
@@ -10,11 +10,11 @@
             </template>
             <div class="project-info">
                 <span class="project-name">
-                    {{ props.projectInfo.projectName }}
+                    {{ projectInfo.projectName }}
                 </span>
                 <span class="project-path">
-                    项目路径： {{ props.projectInfo.path }}
-                    <q-tooltip>{{ props.projectInfo.path }}</q-tooltip>
+                    项目路径： {{ projectInfo.path }}
+                    <q-tooltip>{{ projectInfo.path }}</q-tooltip>
                 </span>
             </div>
         </q-slide-item>
@@ -23,7 +23,8 @@
             <q-btn-dropdown
                 class="tools-btn-dropdown"
                 color="primary"
-                label="执行脚本"
+                :label="scriptExecStatus[projectInfo.projectName] ? '执行中...' : '执行脚本'"
+                :disable="scriptExecStatus[projectInfo.projectName]"
                 menu-anchor="bottom middle"
                 menu-self="top middle"
                 rounded
@@ -76,7 +77,7 @@ import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
-import { computed, watch, defineProps } from 'vue';
+import { computed, watch, defineProps, reactive } from 'vue';
 import { ProjectInfo } from '../meta';
 import AllBranch from './all-branch.vue';
 
@@ -89,6 +90,7 @@ const emit = defineEmits(['delete', 'create-branch', 'merge-branch']);
 const store = useProjectStore();
 const { cwd, projectName, updateBranches } = useProjectItem(props.projectInfo);
 const scripts = computed(() => store.getScripts(projectName.value));
+const scriptExecStatus = reactive<Record<string, boolean>>({});
 
 const onOpenClick = () => {
     electronExpose.shell.openEditor({ cwd: cwd.value });
@@ -126,12 +128,14 @@ const getAllScripts = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: Q
 const onRunScript = async (command: string) => {
     try {
         store.setScriptLatest(projectName.value, command);
+        scriptExecStatus[projectName.value] = true;
         const { projectName: pn } = await electronExpose.shell.script({ command, cwd: cwd.value });
         toast.show(`${pn}执行脚本${command} 成功`, 'done');
     } catch (error) {
         console.log('error', error);
-
         toast.show(`${projectName.value}执行脚本${command} 失败 ${error}`, 'error');
+    } finally {
+        scriptExecStatus[projectName.value] = false;
     }
 };
 
@@ -204,6 +208,10 @@ watch(
 
             :deep(.q-btn-dropdown__arrow) {
                 margin-left: 1px;
+            }
+
+            :deep(.q-btn__content) {
+                min-width: 81px;
             }
         }
 

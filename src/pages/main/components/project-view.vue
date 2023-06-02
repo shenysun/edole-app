@@ -35,7 +35,7 @@
 import { reactive } from 'vue';
 import { ProjectInfo } from '../meta';
 import ProjectItem from './project-item.vue';
-import { QDialog, QSeparator } from 'quasar';
+import { QDialog } from 'quasar';
 import { useProjectStore } from 'src/stores/project';
 import { storeToRefs } from 'pinia';
 import { useGroupStore } from 'src/stores/group';

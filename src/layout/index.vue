@@ -8,7 +8,13 @@
             </q-toolbar>
         </q-header>
 
-        <q-drawer show-if-above v-model="leftDrawerOpen" side="left">
+        <q-drawer
+            style="box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1), 0 0px 10px rgba(0, 0, 0, 0.014)"
+            v-model="leftDrawerOpen"
+            :width="230"
+            show-if-above
+            side="left"
+        >
             <project-group />
         </q-drawer>
 
