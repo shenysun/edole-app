@@ -57,7 +57,7 @@ const onAddClick = async () => {
 const batchPullClick = async () => {
     const list: Array<Promise<unknown>> = [];
     currentProjectList.value?.forEach((projectInfo) => {
-        list.push(electronExpose.shell.git({ command: 'pull', cwd: projectInfo.path }));
+        list.push(electronExpose.git.pull({ cwd: projectInfo.path }));
     });
 
     Loading.show({ message: '批量更新代码中' });

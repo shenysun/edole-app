@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { IpcFunction, MenuEvent, ShellEvent, StdEvent } from '../events/ShellEvent';
+import { GitEvent, IpcFunction, MenuEvent, ShellEvent, StdEvent } from '../events/ShellEvent';
 export const ShellExpose = {
     [ShellEvent.init]: () => {
         return ipcRenderer.invoke(ShellEvent.init);
@@ -17,16 +17,6 @@ export const ShellExpose = {
         return ipcRenderer.invoke(ShellEvent.dialog);
     },
 
-    [ShellEvent.git]: (data: {
-        command: string;
-        branch?: string;
-        startPoint?: string;
-        cwd: string;
-        mergeFrom?: string[];
-    }) => {
-        return ipcRenderer.invoke(ShellEvent.git, data);
-    },
-
     [ShellEvent.scriptList]: (data: { cwd: string }) => {
         return ipcRenderer.invoke(ShellEvent.scriptList, data);
     },
@@ -41,6 +31,36 @@ export const ShellExpose = {
 
     [ShellEvent.writeFile]: (data: { root: RootName; cwd: string; file: string; content: string }) => {
         return ipcRenderer.invoke(ShellEvent.writeFile, data);
+    },
+};
+
+export const GitExpose = {
+    [GitEvent.branch]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(GitEvent.branch, data);
+    },
+
+    [GitEvent.checkout]: (data: { cwd: string; branch: string }) => {
+        return ipcRenderer.invoke(GitEvent.checkout, data);
+    },
+
+    [GitEvent.pull]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(GitEvent.pull, data);
+    },
+
+    [GitEvent.checkoutBranch]: (data: { cwd: string; branch: string; startPoint?: string }) => {
+        return ipcRenderer.invoke(GitEvent.checkoutBranch, data);
+    },
+
+    [GitEvent.checkoutRemoteBranch]: (data: { cwd: string; branch: string; startPoint?: string }) => {
+        return ipcRenderer.invoke(GitEvent.checkoutRemoteBranch, data);
+    },
+
+    [GitEvent.merge]: (data: { cwd: string; branch: string; mergeFrom: string[] }) => {
+        return ipcRenderer.invoke(GitEvent.merge, data);
+    },
+
+    [GitEvent.abort]: (data: { cwd: string; reason?: string }) => {
+        return ipcRenderer.invoke(GitEvent.abort, data);
     },
 };
 
@@ -68,6 +88,7 @@ export const Menu = {
 
 export interface TypeExpose {
     shell: typeof ShellExpose;
+    git: typeof GitExpose;
     std: typeof Std;
     menu: typeof Menu;
 }

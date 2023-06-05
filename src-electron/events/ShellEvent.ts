@@ -5,11 +5,20 @@ export enum ShellEvent {
     open = 'open',
     openEditor = 'openEditor',
     dialog = 'dialog',
-    git = 'git',
     scriptList = 'scriptList',
     script = 'script',
     batchScript = 'batchScript',
     writeFile = 'writeFile',
+}
+
+export enum GitEvent {
+    branch = 'branch',
+    checkout = 'checkout',
+    pull = 'pull',
+    checkoutBranch = 'checkoutBranch',
+    checkoutRemoteBranch = 'checkoutRemoteBranch',
+    merge = 'merge',
+    abort = 'abort',
 }
 
 export enum StdEvent {

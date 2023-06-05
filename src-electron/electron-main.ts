@@ -2,6 +2,7 @@ import { app, BrowserWindow, nativeTheme, screen } from 'electron';
 import path from 'path';
 import os from 'os';
 import ShellAction from './actions/ShellAction';
+import GitAction from './actions/GitAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
 const checked = require('electron-squirrel-startup');
@@ -75,6 +76,7 @@ function init() {
         });
 
         new ShellAction(mainWindow);
+        new GitAction(mainWindow);
 
         mainWindow.loadURL(process.env.APP_URL);
 

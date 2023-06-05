@@ -3,7 +3,6 @@ import { ShellEvent } from 'app/src-electron/events/ShellEvent';
 import openEditor from 'open-editor';
 import open from 'open';
 import { ChildProcess, exec } from 'child_process';
-import { simpleGit } from 'simple-git';
 import path from 'path';
 import fs, { promises } from 'fs';
 import os from 'os';
@@ -54,68 +53,6 @@ export default class ShellAction {
                 };
             });
         });
-
-        ipcMain.handle(
-            ShellEvent.git,
-            async (
-                e,
-                {
-                    command,
-                    cwd,
-                    branch,
-                    startPoint,
-                    mergeFrom,
-                }: {
-                    command: string;
-                    branch?: string;
-                    startPoint?: string;
-                    cwd: string;
-                    mergeFrom?: string[];
-                }
-            ) => {
-                const gitManager = simpleGit(cwd);
-                if (command === 'branch') {
-                    // 获取分支
-                    return await gitManager.branch();
-                } else if (command === 'checkout') {
-                    // 切换分支
-                    if (!branch) {
-                        return false;
-                    }
-                    return await gitManager.checkout(branch);
-                } else if (command === 'pull') {
-                    return await gitManager.pull();
-                } else if (command === 'checkoutBranch' || command === 'checkoutRemoteBranch') {
-                    // 创建分支
-                    if (!branch) {
-                        return false;
-                    }
-                    // 如果startPoint为空, 则默认为当前分支
-                    startPoint = startPoint || (await gitManager.branch()).current;
-                    // // 创建分支并提交到远程
-                    await gitManager.checkout(startPoint);
-                    await gitManager.pull();
-                    await gitManager.checkoutLocalBranch(branch);
-                    if (command === 'checkoutRemoteBranch') {
-                        await gitManager.push('origin', branch, ['--set-upstream']);
-                    }
-                } else if (command === 'merge') {
-                    // 合并分支
-                    if (!mergeFrom || !mergeFrom.length || !branch) {
-                        return false;
-                    }
-
-                    // 串行执行 mergeFrom 分支的合并
-                    for await (const item of mergeFrom) {
-                        await gitManager.checkout(item);
-                        await gitManager.pull();
-                        await gitManager.checkout(branch);
-                        await gitManager.pull();
-                        await gitManager.mergeFromTo(item, branch);
-                    }
-                }
-            }
-        );
 
         ipcMain.handle(ShellEvent.scriptList, async (e, { cwd }) => {
             try {

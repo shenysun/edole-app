@@ -97,7 +97,7 @@ const onOpenClick = () => {
 };
 
 const onPullClick = async () => {
-    await electronExpose.shell.git({ command: 'pull', cwd: cwd.value });
+    await electronExpose.git.pull({ cwd: cwd.value });
     toast.show(`${projectName.value} 拉取代码成功`, 'done');
 };
 

@@ -81,7 +81,7 @@ const cancel = watch(
  */
 const checkoutBranch = async (branch: string) => {
     try {
-        await electronExpose.shell.git({ command: 'checkout', branch, cwd: cwd.value });
+        await electronExpose.git.checkout({ branch, cwd: cwd.value });
         await updateBranches();
         branchInfo.value && (branchInfo.value.current = branch);
         toast.show(`切换分支${branch}成功`, 'done');

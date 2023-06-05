@@ -14,7 +14,7 @@ export function useProjectItem(projectInfo: ProjectInfo) {
      * @param doneFn
      */
     const updateBranches = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-        const info = await electronExpose.shell.git({ command: 'branch', cwd: cwd.value });
+        const info = await electronExpose.git.branch({ cwd: cwd.value });
         const setStore = () => {
             projectStore.setBranchInfo(projectName.value, info);
         };

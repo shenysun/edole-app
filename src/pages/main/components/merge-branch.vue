@@ -53,7 +53,7 @@ const onMergeClick = async () => {
     const mergeFrom = fromBranchList.value.filter((t) => t).map((t) => remoteBranchToLocal(t));
     try {
         Loading.show();
-        await electronExpose.shell.git({ command: 'merge', cwd: cwd.value, mergeFrom, branch: toBranchName.value });
+        await electronExpose.git.merge({ cwd: cwd.value, mergeFrom, branch: toBranchName.value });
         updateBranches();
         emit('update:show', false);
         toast.show('合并分支成功', 'done');

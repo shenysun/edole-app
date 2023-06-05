@@ -1,6 +1,7 @@
 import { contextBridge } from 'electron';
-import { Menu, ShellExpose, Std } from './preload/preload';
+import { Menu, ShellExpose, GitExpose, Std } from './preload/preload';
 
 contextBridge.exposeInMainWorld('shell', ShellExpose);
+contextBridge.exposeInMainWorld('git', GitExpose);
 contextBridge.exposeInMainWorld('std', Std);
 contextBridge.exposeInMainWorld('menu', Menu);

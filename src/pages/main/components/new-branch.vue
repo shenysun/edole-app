@@ -55,8 +55,8 @@ const onCreateClick = async () => {
 
     Loading.show({ message: '创建分支中...' });
     // 创建分支
-    await electronExpose.shell.git({
-        command: createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch',
+    const command = createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch';
+    await electronExpose.git[command]({
         branch: branchName.value,
         startPoint: val,
         cwd: cwd.value || '',

@@ -178,7 +178,7 @@ const batchMerge = async () => {
                 for (const mergeInfo of mergeInfoList) {
                     if (mergeInfo) {
                         const { cwd, mergeFrom, branch } = mergeInfo;
-                        promiseList.push(electronExpose.shell.git({ command: 'merge', cwd, mergeFrom, branch }));
+                        promiseList.push(electronExpose.git.merge({ cwd, mergeFrom, branch }));
                     }
                 }
                 await Promise.allSettled(promiseList);
@@ -213,9 +213,9 @@ const batchBranch = async () => {
         if (cwd) {
             const branch = branchInputInfo[projectName];
             if (branch) {
+                const command = createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch';
                 list.push(
-                    electronExpose.shell.git({
-                        command: createRemote.value ? 'checkoutRemoteBranch' : 'checkoutBranch',
+                    electronExpose.git[command]({
                         branch,
                         startPoint: branchSelectInfo[projectName],
                         cwd,
@@ -283,7 +283,7 @@ const batchScript = async () => {
 const updateProjectBranch = async () => {
     currentProjectList.value?.forEach((projectInfo) => {
         const { projectName, path } = projectInfo;
-        electronExpose.shell.git({ command: 'branch', cwd: path }).then((info) => {
+        electronExpose.git.branch({ cwd: path }).then((info) => {
             projectStore.setBranchInfo(projectName, info);
         });
     });
