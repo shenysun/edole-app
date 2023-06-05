@@ -98,6 +98,7 @@ import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { BatchType, BuildEnv, ExecStatus } from '../meta';
 import AllBranch from './all-branch.vue';
 import { remoteBranchToLocal } from 'src/common/utils/branch';
+import { watchOnce } from '@vueuse/shared';
 
 interface Props {
     type: BatchType;
@@ -351,7 +352,7 @@ watchEffect(() => {
     }
 });
 
-watch(
+watchOnce(
     scriptLatest,
     (val) => {
         if (!currentProjectList.value) {
