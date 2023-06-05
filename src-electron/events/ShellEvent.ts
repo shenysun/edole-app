@@ -1,14 +1,19 @@
 import { IpcRendererEvent } from 'electron';
 
 export enum ShellEvent {
-    init = 'init',
+    getOS = 'getOS',
     open = 'open',
     openEditor = 'openEditor',
     dialog = 'dialog',
-    scriptList = 'scriptList',
-    script = 'script',
-    batchScript = 'batchScript',
     writeFile = 'writeFile',
+}
+
+export enum ScriptEvent {
+    package_script = 'package_script',
+    binary = 'binary',
+    run = 'run',
+    stop = 'stop',
+    stopAll = 'stopAll',
 }
 
 export enum GitEvent {

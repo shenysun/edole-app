@@ -259,7 +259,7 @@ const batchScript = async () => {
             if (command) {
                 projectStore.setScriptLatest(projectName, command);
                 if (command !== noneScript) {
-                    const p = electronExpose.shell.script({ command, cwd });
+                    const p = electronExpose.script.run({ command, cwd });
                     dealPromise(projectName, p);
                     scrPromiseList.push(p);
                 }

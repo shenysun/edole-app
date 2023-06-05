@@ -97,8 +97,12 @@ const onOpenClick = () => {
 };
 
 const onPullClick = async () => {
-    await electronExpose.git.pull({ cwd: cwd.value });
-    toast.show(`${projectName.value} 拉取代码成功`, 'done');
+    try {
+        await electronExpose.git.pull({ cwd: cwd.value });
+        toast.show(`${projectName.value} 拉取代码成功`, 'done');
+    } catch (error) {
+        toast.show(`${projectName.value} 拉取代码失败 ${error}`, 'error');
+    }
 };
 
 const onCreateBranch = () => {
@@ -114,7 +118,7 @@ const onOpenFileClick = () => {
 };
 
 const getAllScripts = async (doneFn?: (callbackFn: () => void, afterFn?: (ref: QSelect) => void) => void) => {
-    const scriptDict = await electronExpose.shell.scriptList({ cwd: cwd.value });
+    const scriptDict = await electronExpose.script.package_script({ cwd: cwd.value });
     const tempList = Object.keys(scriptDict);
     if (doneFn) {
         doneFn(() => {
@@ -129,7 +133,7 @@ const onRunScript = async (command: string) => {
     try {
         store.setScriptLatest(projectName.value, command);
         scriptExecStatus[projectName.value] = true;
-        const { projectName: pn } = await electronExpose.shell.script({ command, cwd: cwd.value });
+        const { projectName: pn } = await electronExpose.script.run({ command, cwd: cwd.value });
         toast.show(`${pn}执行脚本${command} 成功`, 'done');
     } catch (error) {
         console.log('error', error);

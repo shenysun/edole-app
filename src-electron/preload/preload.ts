@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
-import { GitEvent, IpcFunction, MenuEvent, ShellEvent, StdEvent } from '../events/ShellEvent';
+import { GitEvent, ScriptEvent, IpcFunction, MenuEvent, ShellEvent, StdEvent } from '../events/ShellEvent';
 export const ShellExpose = {
-    [ShellEvent.init]: () => {
-        return ipcRenderer.invoke(ShellEvent.init);
+    [ShellEvent.getOS]: () => {
+        return ipcRenderer.invoke(ShellEvent.getOS);
     },
 
     [ShellEvent.openEditor]: (data: { cwd: string; editor?: string }) => {
@@ -17,20 +17,30 @@ export const ShellExpose = {
         return ipcRenderer.invoke(ShellEvent.dialog);
     },
 
-    [ShellEvent.scriptList]: (data: { cwd: string }) => {
-        return ipcRenderer.invoke(ShellEvent.scriptList, data);
-    },
-
-    [ShellEvent.script]: (data: { command: string; cwd: string }) => {
-        return ipcRenderer.invoke(ShellEvent.script, data);
-    },
-
-    [ShellEvent.batchScript]: (list: { command: string; cwd: string }[]) => {
-        return ipcRenderer.invoke(ShellEvent.batchScript, list);
-    },
-
     [ShellEvent.writeFile]: (data: { root: RootName; cwd: string; file: string; content: string }) => {
         return ipcRenderer.invoke(ShellEvent.writeFile, data);
+    },
+};
+
+export const ScriptExpose = {
+    [ScriptEvent.package_script]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(ScriptEvent.package_script, data);
+    },
+
+    [ScriptEvent.binary]: (data: { binary: string }) => {
+        return ipcRenderer.invoke(ScriptEvent.binary, data);
+    },
+
+    [ScriptEvent.run]: (data: { cwd: string; command: string }) => {
+        return ipcRenderer.invoke(ScriptEvent.run, data);
+    },
+
+    [ScriptEvent.stop]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(ScriptEvent.stop, data);
+    },
+
+    [ScriptEvent.stopAll]: () => {
+        return ipcRenderer.invoke(ScriptEvent.stopAll);
     },
 };
 
@@ -88,6 +98,7 @@ export const Menu = {
 
 export interface TypeExpose {
     shell: typeof ShellExpose;
+    script: typeof ScriptExpose;
     git: typeof GitExpose;
     std: typeof Std;
     menu: typeof Menu;

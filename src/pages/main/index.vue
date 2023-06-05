@@ -15,7 +15,7 @@ import ProjectView from './components/project-view.vue';
 const os = useOSStore();
 
 onMounted(async () => {
-    const { platform } = await electronExpose.shell.init();
+    const { platform } = await electronExpose.shell.getOS();
     os.setPlatform(platform);
 });
 </script>

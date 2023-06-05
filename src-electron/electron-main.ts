@@ -5,6 +5,7 @@ import ShellAction from './actions/ShellAction';
 import GitAction from './actions/GitAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
+import ScriptAction from './actions/ScriptAction';
 const checked = require('electron-squirrel-startup');
 
 function init() {
@@ -76,6 +77,7 @@ function init() {
         });
 
         new ShellAction(mainWindow);
+        new ScriptAction(mainWindow);
         new GitAction(mainWindow);
 
         mainWindow.loadURL(process.env.APP_URL);

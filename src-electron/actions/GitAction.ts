@@ -12,27 +12,27 @@ export default class GitAction {
 
     registerHandler() {
         ipcMain.handle(GitEvent.branch, async (e, { cwd }) => {
-            return await this.branch(cwd);
+            return this.branch(cwd);
         });
 
         ipcMain.handle(GitEvent.checkout, async (e, { cwd, branch }) => {
-            await this.checkout(cwd, branch);
+            return this.checkout(cwd, branch);
         });
 
         ipcMain.handle(GitEvent.pull, async (e, { cwd }) => {
-            await this.pull(cwd);
+            return this.pull(cwd);
         });
 
         ipcMain.handle(GitEvent.checkoutBranch, async (e, { cwd, branch, startPoint }) => {
-            await this.checkoutBranch(cwd, branch, startPoint);
+            return this.checkoutBranch(cwd, branch, startPoint);
         });
 
         ipcMain.handle(GitEvent.checkoutRemoteBranch, async (e, { cwd, branch, startPoint }) => {
-            await this.checkoutRemoteBranch(cwd, branch, startPoint);
+            return this.checkoutRemoteBranch(cwd, branch, startPoint);
         });
 
         ipcMain.handle(GitEvent.merge, async (e, { cwd, branch, mergeFrom }) => {
-            await this.merge(cwd, branch, mergeFrom);
+            return this.merge(cwd, branch, mergeFrom);
         });
 
         ipcMain.handle(GitEvent.abort, async (e, { cwd, reason }) => {
@@ -58,17 +58,17 @@ export default class GitAction {
 
     public async branch(cwd: string) {
         const gitManager = this.getGitHandle(cwd);
-        return await gitManager.branch();
+        return gitManager.branch();
     }
 
     public async checkout(cwd: string, branch: string) {
         const gitManager = this.getGitHandle(cwd);
-        return await gitManager.checkout(branch);
+        return gitManager.checkout(branch);
     }
 
     public async pull(cwd: string) {
         const gitManager = this.getGitHandle(cwd);
-        return await gitManager.pull();
+        return gitManager.pull();
     }
 
     public async checkoutBranch(cwd: string, branch: string, startPoint?: string) {
