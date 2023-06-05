@@ -100,12 +100,22 @@ export const Menu = {
     },
 };
 
+export const App = {
+    [MenuEvent.on]: (type: string, callback: IpcFunction) => {
+        ipcRenderer.on(type, callback);
+    },
+    [MenuEvent.off]: (type: string, callback: IpcFunction) => {
+        ipcRenderer.off(type, callback);
+    },
+};
+
 export interface TypeExpose {
     shell: typeof ShellExpose;
     script: typeof ScriptExpose;
     git: typeof GitExpose;
     std: typeof Std;
     menu: typeof Menu;
+    app: typeof App;
 }
 
 export type RootName =

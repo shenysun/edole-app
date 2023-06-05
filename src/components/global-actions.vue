@@ -8,9 +8,13 @@ import { Dialog } from 'quasar';
 import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { getLocalRootFile } from 'src/common/utils/localFile';
+import { useGroupStore } from 'src/stores/group';
+import { useProjectStore } from 'src/stores/project';
 import { onMounted, onUnmounted } from 'vue';
 
 const href = useLocalStorage('latestHref', 'http://localhost:8080');
+const groupStore = useGroupStore();
+const projectStore = useProjectStore();
 
 const onContextMenu = (e: MouseEvent) => {
     electronExpose.menu.context({ x: e.clientX, y: e.clientY });
@@ -73,14 +77,28 @@ const onMenuAction = (_sender: unknown, args: { type: string; [key: string]: unk
             break;
     }
 };
+
+const onWindowFocus = () => {
+    console.log('onWindowFocus');
+
+    groupStore.currentProjectList?.forEach((projectInfo) => {
+        const { projectName, path } = projectInfo;
+        electronExpose.git.branch({ cwd: path }).then((info) => {
+            projectStore.setBranchInfo(projectName, info);
+        });
+    });
+};
+
 onMounted(() => {
     window.addEventListener('contextmenu', onContextMenu);
     electronExpose.menu.on('menu', onMenuAction);
+    electronExpose.app.on('focus', onWindowFocus);
 });
 
 onUnmounted(() => {
     window.removeEventListener('contextmenu', onContextMenu);
     electronExpose.menu.off('menu', onMenuAction);
+    electronExpose.app.off('focus', onWindowFocus);
 });
 </script>
 <style scoped></style>

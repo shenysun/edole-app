@@ -81,6 +81,9 @@ function init() {
         new GitAction(mainWindow);
 
         mainWindow.loadURL(process.env.APP_URL);
+        mainWindow.on('focus', () => {
+            mainWindow?.webContents.send('focus');
+        });
 
         if (process.env.DEBUGGING) {
             // if on DEV or Production with debug enabled
