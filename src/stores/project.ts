@@ -1,20 +1,29 @@
 import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { BranchInfo } from 'src/pages/main/meta';
+import { remoteBranchToLocal, remoteReg } from 'src/common/utils/branch';
+import { ProjectBranchInfo } from 'src/pages/main/meta';
 import { computed, reactive, Ref, ref, unref } from 'vue';
 
 const scriptLatestKey = 'scriptLatest';
 export const useProjectStore = defineStore('project', () => {
     const scriptLatest = useLocalStorage<Record<string, string>>(scriptLatestKey, ref({}));
-    const branchInfoMap = reactive<Map<string, BranchInfo>>(new Map());
+    const branchInfoMap = reactive<Map<string, ProjectBranchInfo>>(new Map());
     const scriptsMap = reactive<Map<string, string[]>>(new Map());
 
-    const setBranchInfo = (projectName: string | Ref<string>, info?: BranchInfo) => {
+    const setBranchInfo = (projectName: string | Ref<string>, info?: ProjectBranchInfo) => {
         const key = unref(projectName);
         if (!info) {
             branchInfoMap.delete(key);
             return;
         }
+
+        const all = new Set<string>();
+        info.all.forEach((item) => {
+            info.branches[item].isRemote = remoteReg.test(item);
+            all.add(remoteBranchToLocal(item));
+        });
+
+        info.all = Array.from(all);
         branchInfoMap.set(key, info);
     };
 

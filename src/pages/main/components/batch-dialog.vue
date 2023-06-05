@@ -1,7 +1,7 @@
 <template>
     <q-card class="batch-dialog">
         <q-card-section class="row items-center q-pb-none">
-            <div class="text-h6">批量{{ title }}</div>
+            <div class="text-h6">{{ title }}</div>
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -139,7 +139,7 @@ const title = computed(() => {
         case 'script':
             return '批量执行脚本';
         case 'branch':
-            return '批量切换分支';
+            return '批量创建分支';
         case 'merge':
             return '批量合并分支';
         default:

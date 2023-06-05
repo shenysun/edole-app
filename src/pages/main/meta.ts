@@ -34,11 +34,23 @@ export interface ProjectInfo {
 /**
  * 工程分支信息
  */
-export type BranchInfo = {
-    all: string[];
+export type ProjectBranchInfo = {
+    detached: boolean;
     current: string;
+    all: string[];
+    branches: {
+        [key: string]: BranchSummaryBranch;
+    };
 };
 
+export interface BranchSummaryBranch {
+    current: boolean;
+    name: string;
+    commit: string;
+    label: string;
+    linkedWorkTree: boolean;
+    isRemote: boolean;
+}
 /**
  * 工程构建环境
  */
