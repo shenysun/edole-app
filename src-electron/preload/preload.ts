@@ -69,6 +69,10 @@ export const GitExpose = {
         return ipcRenderer.invoke(GitEvent.merge, data);
     },
 
+    [GitEvent.diff]: (data: { cwd: string }) => {
+        return ipcRenderer.invoke(GitEvent.diff, data);
+    },
+
     [GitEvent.abort]: (data: { cwd: string; reason?: string }) => {
         return ipcRenderer.invoke(GitEvent.abort, data);
     },

@@ -35,6 +35,10 @@ export default class GitAction {
             return this.merge(cwd, branch, mergeFrom);
         });
 
+        ipcMain.handle(GitEvent.diff, (e, { cwd }) => {
+            return this.checkDiffName(cwd);
+        });
+
         ipcMain.handle(GitEvent.abort, async (e, { cwd, reason }) => {
             this.abort(cwd, reason);
         });
@@ -97,6 +101,14 @@ export default class GitAction {
             await gitManager.pull();
             await gitManager.mergeFromTo(item, branch);
         }
+    }
+
+    /**
+     * 查看冲突文件
+     */
+    public async checkDiffName(cwd: string) {
+        const gitManager = this.getGitHandle(cwd);
+        return gitManager.diff(['--name-only', '--diff-filter=U']);
     }
 
     public async push(cwd: string, branch: string) {

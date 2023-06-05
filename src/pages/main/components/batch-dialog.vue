@@ -194,18 +194,25 @@ const batchMerge = async () => {
                         const { cwd, mergeFrom, branch } = mergeInfo;
                         mergeExecInfo[mergeInfo.projectName] = 'start';
                         const p = electronExpose.git.merge({ cwd, mergeFrom, branch });
-                        p.then(() => (mergeExecInfo[mergeInfo.projectName] = 'success')).catch(
-                            () => (mergeExecInfo[mergeInfo.projectName] = 'error')
-                        );
+                        p.then(() => (mergeExecInfo[mergeInfo.projectName] = 'success'))
+                            .catch((e) => {
+                                mergeExecInfo[mergeInfo.projectName] = 'error';
+                                console.log('合并分支失败', e);
+                            })
+                            .finally(async () => {
+                                const diff = await electronExpose.git.diff({ cwd });
+                                console.log('冲突文件列表:');
+                                console.log(diff.trim().split('\n'));
+                            });
                         promiseList.push(p);
                     }
                 }
                 await Promise.allSettled(promiseList);
-                toast.show('合并分支成功', 'done');
             } catch (error) {
                 toast.show(`合并分支失败 ${error}`, 'error');
                 console.log('合并分支错误', error);
             } finally {
+                toast.show('合并分支执行完毕', 'done');
                 Loading.hide();
             }
         }
