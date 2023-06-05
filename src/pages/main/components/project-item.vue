@@ -152,7 +152,14 @@ const onRunScript = async (command: string) => {
 };
 
 const onStopScript = () => {
-    electronExpose.script.stop({ cwd: cwd.value });
+    Dialog.create({
+        title: '终止任务',
+        message: '是否终止当前任务',
+        ok: '确定',
+        cancel: '取消',
+    }).onOk(() => {
+        electronExpose.script.stop({ cwd: cwd.value });
+    });
 };
 
 /**
