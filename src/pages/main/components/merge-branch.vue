@@ -58,6 +58,7 @@ const onMergeClick = async () => {
         emit('update:show', false);
         toast.show('合并分支成功', 'done');
     } catch (error) {
+        toast.show('合并分支失败' + error, 'error');
         console.log('合并分支错误', error);
     } finally {
         Loading.hide();
