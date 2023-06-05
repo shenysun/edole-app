@@ -30,7 +30,7 @@ export default class ScriptAction {
             return this.stop(cwd);
         });
 
-        ipcMain.handle(ScriptEvent.stopAll, async (e) => {
+        ipcMain.handle(ScriptEvent.stopAll, async () => {
             return this.stopAll();
         });
     }

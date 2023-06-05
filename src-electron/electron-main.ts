@@ -3,9 +3,9 @@ import path from 'path';
 import os from 'os';
 import ShellAction from './actions/ShellAction';
 import GitAction from './actions/GitAction';
+import ScriptAction from './actions/ScriptAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
-import ScriptAction from './actions/ScriptAction';
 const checked = require('electron-squirrel-startup');
 
 function init() {

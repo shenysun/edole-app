@@ -7,20 +7,8 @@
         </q-card-section>
         <q-card-section class="q-pt-none">
             <div class="text-h8">合并到</div>
-            <q-input
-                class="input-new"
-                v-if="isNewBranch"
-                dense
-                v-model="toBranchName"
-                autofocus
-                placeholder="输入新的分支名"
-            />
-            <all-branch v-else v-model:select="toBranchName" :project-info="props.projectInfo!"></all-branch>
+            <all-branch v-model:select="toBranchName" :project-info="props.projectInfo!"></all-branch>
         </q-card-section>
-
-        <q-card-actions align="right">
-            <q-toggle v-model="isNewBranch" label="合并到新分支" />
-        </q-card-actions>
         <q-card-actions align="right" class="text-primary">
             <q-btn flat label="取消" v-close-popup />
             <q-btn flat label="合并分支" @click="onMergeClick" />
@@ -45,7 +33,6 @@ interface Props {
 const emit = defineEmits(['update:show']);
 const props = defineProps<Props>();
 const { cwd, updateBranches } = useProjectItem(props.projectInfo);
-const isNewBranch = ref(false);
 const toBranchName = ref('');
 const fromBranchList = ref([]);
 

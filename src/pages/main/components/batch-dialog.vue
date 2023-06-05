@@ -20,7 +20,6 @@
                     <span :style="'color: ' + execStatusToColor(scriptExecInfo[info.projectName]) + ';'">{{
                         execStatusToCN(scriptExecInfo[info.projectName])
                     }}</span>
-                    <!-- <q-icon :name="execStatusToIcon(scriptExecInfo[info.projectName])"></q-icon> -->
                 </div>
             </q-item>
         </q-card-section>
@@ -53,6 +52,12 @@
                     :project-info="info"
                     v-model:select="mergeToInfo[info.projectName]"
                 />
+                <div class="project-status">
+                    <span>执行状态：</span>
+                    <span :style="'color: ' + execStatusToColor(mergeExecInfo[info.projectName]) + ';'">{{
+                        execStatusToCN(mergeExecInfo[info.projectName])
+                    }}</span>
+                </div>
             </q-item>
         </q-card-section>
         <q-separator></q-separator>
@@ -128,6 +133,7 @@ const branchInputInfo = reactive<Record<string, string>>({});
 // 合并分支相关
 const mergeFromInfo = reactive<Record<string, string[]>>({});
 const mergeToInfo = reactive<Record<string, string>>({});
+const mergeExecInfo = reactive<Record<string, ExecStatus>>({});
 
 const scriptOptions = computed(() => {
     return (projectName: string) => {
@@ -161,10 +167,18 @@ const batchMerge = async () => {
         .map(([projectName, fromBranchList]) => {
             const toBranchName = mergeToInfo[projectName];
             const cwd = groupStore.getProjectCwd(projectName);
-            if (cwd && toBranchName) {
-                const mergeFrom = fromBranchList.filter((t) => t).map((t) => remoteBranchToLocal(t));
-                return { cwd, mergeFrom, branch: toBranchName };
+            if (
+                !fromBranchList ||
+                !fromBranchList.length ||
+                !toBranchName ||
+                (fromBranchList.length === 1 && fromBranchList[0] === toBranchName) ||
+                !cwd
+            ) {
+                return undefined;
             }
+
+            const mergeFrom = fromBranchList.filter((t) => t).map((t) => remoteBranchToLocal(t));
+            return { cwd, mergeFrom, branch: toBranchName, projectName };
         })
         .filter((t) => t);
 
@@ -178,12 +192,18 @@ const batchMerge = async () => {
                 for (const mergeInfo of mergeInfoList) {
                     if (mergeInfo) {
                         const { cwd, mergeFrom, branch } = mergeInfo;
-                        promiseList.push(electronExpose.git.merge({ cwd, mergeFrom, branch }));
+                        mergeExecInfo[mergeInfo.projectName] = 'start';
+                        const p = electronExpose.git.merge({ cwd, mergeFrom, branch });
+                        p.then(() => (mergeExecInfo[mergeInfo.projectName] = 'success')).catch(
+                            () => (mergeExecInfo[mergeInfo.projectName] = 'error')
+                        );
+                        promiseList.push(p);
                     }
                 }
                 await Promise.allSettled(promiseList);
                 toast.show('合并分支成功', 'done');
             } catch (error) {
+                toast.show(`合并分支失败 ${error}`, 'error');
                 console.log('合并分支错误', error);
             } finally {
                 Loading.hide();
@@ -367,6 +387,31 @@ watchOnce(
     },
     {
         immediate: true,
+    }
+);
+
+watch(
+    () => ({ from: mergeFromInfo, to: mergeToInfo }),
+    ({ from, to }) => {
+        if (!currentProjectList.value) {
+            return;
+        }
+
+        const temp: Record<string, ExecStatus> = {};
+        for (const info of currentProjectList.value) {
+            const flist = from[info.projectName];
+            const t = to[info.projectName];
+            if (!flist || !flist.length || !t || (flist.length === 1 && flist[0] === t)) {
+                temp[info.projectName] = 'none';
+            } else {
+                temp[info.projectName] = 'not-start';
+            }
+        }
+
+        Object.assign(mergeExecInfo, temp);
+    },
+    {
+        deep: true,
     }
 );
 
