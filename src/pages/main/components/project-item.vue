@@ -77,7 +77,7 @@ import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { useProjectItem } from 'src/composable/useProjectItem';
 import { useProjectStore } from 'src/stores/project';
-import { computed, watch, defineProps, reactive } from 'vue';
+import { computed, watch, reactive } from 'vue';
 import { ProjectInfo } from '../meta';
 import AllBranch from './all-branch.vue';
 
