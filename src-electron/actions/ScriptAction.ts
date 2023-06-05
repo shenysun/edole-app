@@ -61,6 +61,7 @@ export default class ScriptAction {
         const process = this.processCache.get(cwd);
         if (process) {
             process.kill();
+            this.processCache.delete(cwd);
         }
     }
 

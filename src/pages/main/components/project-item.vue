@@ -20,11 +20,19 @@
         </q-slide-item>
         <div class="project-actions">
             <all-branch class="project-actions-select" :project-info="projectInfo" auto-check-branch></all-branch>
+            <q-btn
+                v-if="scriptExecStatus[projectInfo.projectName]"
+                class="tools-btn"
+                color="red"
+                rounded
+                label="终止任务"
+                @click="onStopScript"
+            ></q-btn>
             <q-btn-dropdown
+                v-else
                 class="tools-btn-dropdown"
                 color="primary"
-                :label="scriptExecStatus[projectInfo.projectName] ? '执行中...' : '执行脚本'"
-                :disable="scriptExecStatus[projectInfo.projectName]"
+                label="执行脚本"
                 menu-anchor="bottom middle"
                 menu-self="top middle"
                 rounded
@@ -143,6 +151,10 @@ const onRunScript = async (command: string) => {
     }
 };
 
+const onStopScript = () => {
+    electronExpose.script.stop({ cwd: cwd.value });
+};
+
 /**
  * 移除项目
  * @param info
@@ -217,6 +229,10 @@ watch(
             :deep(.q-btn__content) {
                 min-width: 81px;
             }
+        }
+
+        .tools-btn {
+            padding: 4px 20.5px;
         }
 
         .project-actions-select {
