@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { GitEvent, ScriptEvent, IpcFunction, MenuEvent, ShellEvent, StdEvent } from '../events/ShellEvent';
+import { GitEvent, ScriptEvent, IpcFunction, MenuEvent, ShellEvent, ListenerEvent } from '../events/ShellEvent';
 export const ShellExpose = {
     [ShellEvent.getOS]: () => {
         return ipcRenderer.invoke(ShellEvent.getOS);
@@ -79,11 +79,11 @@ export const GitExpose = {
 };
 
 export const Std = {
-    [StdEvent.on]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
+    [ListenerEvent.on]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
         ipcRenderer.on(type, callback);
     },
 
-    [StdEvent.off]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
+    [ListenerEvent.off]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
         return ipcRenderer.off(type, callback);
     },
 };
@@ -92,19 +92,19 @@ export const Menu = {
     [MenuEvent.context]: (data: { x: number; y: number }) => {
         ipcRenderer.send(MenuEvent.context, data);
     },
-    [MenuEvent.on]: (type: 'menu', callback: IpcFunction) => {
+    [ListenerEvent.on]: (type: 'menu', callback: IpcFunction) => {
         ipcRenderer.on(type, callback);
     },
-    [MenuEvent.off]: (type: string, callback: IpcFunction) => {
+    [ListenerEvent.off]: (type: string, callback: IpcFunction) => {
         ipcRenderer.off(type, callback);
     },
 };
 
 export const App = {
-    [MenuEvent.on]: (type: string, callback: IpcFunction) => {
+    [ListenerEvent.on]: (type: string, callback: IpcFunction) => {
         ipcRenderer.on(type, callback);
     },
-    [MenuEvent.off]: (type: string, callback: IpcFunction) => {
+    [ListenerEvent.off]: (type: string, callback: IpcFunction) => {
         ipcRenderer.off(type, callback);
     },
 };

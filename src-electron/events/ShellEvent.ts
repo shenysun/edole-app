@@ -27,15 +27,13 @@ export enum GitEvent {
     abort = 'abort',
 }
 
-export enum StdEvent {
+export enum ListenerEvent {
     on = 'on',
     off = 'off',
 }
 
 export enum MenuEvent {
     context = 'context',
-    on = 'on',
-    off = 'off',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -79,8 +79,6 @@ const onMenuAction = (_sender: unknown, args: { type: string; [key: string]: unk
 };
 
 const onWindowFocus = () => {
-    console.log('onWindowFocus');
-
     groupStore.currentProjectList?.forEach((projectInfo) => {
         const { projectName, path } = projectInfo;
         electronExpose.git.branch({ cwd: path }).then((info) => {
