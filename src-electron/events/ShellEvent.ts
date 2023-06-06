@@ -24,6 +24,7 @@ export enum GitEvent {
     checkoutRemoteBranch = 'checkoutRemoteBranch',
     merge = 'merge',
     diff = 'diff',
+    status = 'status',
     abort = 'abort',
 }
 

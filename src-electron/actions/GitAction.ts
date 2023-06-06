@@ -39,6 +39,23 @@ export default class GitAction {
             return this.checkDiffName(cwd);
         });
 
+        ipcMain.handle(GitEvent.status, async (e, { cwd }) => {
+            const s = await this.status(cwd);
+            // 冲突，新增，删除，修改，已暂存，本地 commit > 远端，远端 > 本地
+            const { conflicted, not_added, deleted, modified, staged, ahead, behind, current, tracking } = s;
+            return {
+                conflicted,
+                not_added,
+                deleted,
+                modified,
+                staged,
+                ahead,
+                behind,
+                current,
+                tracking,
+            };
+        });
+
         ipcMain.handle(GitEvent.abort, async (e, { cwd, reason }) => {
             this.abort(cwd, reason);
         });
@@ -109,6 +126,11 @@ export default class GitAction {
     public async checkDiffName(cwd: string) {
         const gitManager = this.getGitHandle(cwd);
         return gitManager.diff(['--name-only', '--diff-filter=U']);
+    }
+
+    public async status(cwd: string) {
+        const gitManager = this.getGitHandle(cwd);
+        return gitManager.status();
     }
 
     public async push(cwd: string, branch: string) {
