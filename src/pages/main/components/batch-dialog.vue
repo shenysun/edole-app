@@ -78,6 +78,7 @@
                 <q-input dense v-model="uniteInput" placeholder="输入新的分支名" autofocus />
                 <q-checkbox v-model="createRemote" color="cyan" label="提交到远端" />
             </div>
+            <q-checkbox v-if="props.type === 'merge'" v-model="pushRemote" color="cyan" label="无冲突提交到远端" />
             <q-btn
                 class="exec-btn"
                 color="cyan"
@@ -134,6 +135,7 @@ const branchInputInfo = reactive<Record<string, string>>({});
 const mergeFromInfo = reactive<Record<string, string[]>>({});
 const mergeToInfo = reactive<Record<string, string>>({});
 const mergeExecInfo = reactive<Record<string, ExecStatus>>({});
+const pushRemote = ref(true);
 
 const scriptOptions = computed(() => {
     return (projectName: string) => {
@@ -193,8 +195,14 @@ const batchMerge = async () => {
                     if (mergeInfo) {
                         const { cwd, mergeFrom, branch } = mergeInfo;
                         mergeExecInfo[mergeInfo.projectName] = 'start';
-                        const p = electronExpose.git.merge({ cwd, mergeFrom, branch });
-                        p.then(() => (mergeExecInfo[mergeInfo.projectName] = 'success'))
+                        const mergeP = electronExpose.git.merge({ cwd, mergeFrom, branch });
+                        const pushP = mergeP
+                            .then(async () => {
+                                mergeExecInfo[mergeInfo.projectName] = 'success';
+                                if (pushRemote.value) {
+                                    await electronExpose.git.push({ cwd });
+                                }
+                            })
                             .catch((e) => {
                                 mergeExecInfo[mergeInfo.projectName] = 'error';
                                 console.log('合并分支失败', e);
@@ -204,7 +212,7 @@ const batchMerge = async () => {
                                 console.log('冲突文件列表:');
                                 console.log(diff.trim().split('\n'));
                             });
-                        promiseList.push(p);
+                        promiseList.push(pushP);
                     }
                 }
                 await Promise.allSettled(promiseList);

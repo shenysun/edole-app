@@ -25,6 +25,7 @@ export enum GitEvent {
     merge = 'merge',
     diff = 'diff',
     status = 'status',
+    push = 'push',
     abort = 'abort',
 }
 

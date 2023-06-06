@@ -56,6 +56,10 @@ export default class GitAction {
             };
         });
 
+        ipcMain.handle(GitEvent.push, (e, { cwd, branch }) => {
+            return this.push(cwd, branch);
+        });
+
         ipcMain.handle(GitEvent.abort, async (e, { cwd, reason }) => {
             this.abort(cwd, reason);
         });
@@ -133,7 +137,7 @@ export default class GitAction {
         return gitManager.status();
     }
 
-    public async push(cwd: string, branch: string) {
+    public async push(cwd: string, branch?: string) {
         const gitManager = this.getGitHandle(cwd);
         await gitManager.push('origin', branch);
     }

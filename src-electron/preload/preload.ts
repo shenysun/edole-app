@@ -77,6 +77,10 @@ export const GitExpose = {
         return ipcRenderer.invoke(GitEvent.status, data);
     },
 
+    [GitEvent.push]: (data: { cwd: string; branch?: string }) => {
+        return ipcRenderer.invoke(GitEvent.push, data);
+    },
+
     [GitEvent.abort]: (data: { cwd: string; reason?: string }) => {
         return ipcRenderer.invoke(GitEvent.abort, data);
     },
