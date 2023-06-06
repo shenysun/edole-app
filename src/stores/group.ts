@@ -41,6 +41,17 @@ export const useGroupStore = defineStore('group', () => {
         }
     };
 
+    const updateGroup = (groupName: string, newGroupName: string) => {
+        const index = groupList.value.findIndex((info) => {
+            return info.groupName === groupName;
+        });
+
+        if (index > -1) {
+            selectGroup.value = newGroupName;
+            groupList.value[index].groupName = newGroupName;
+        }
+    };
+
     const addGroupProject = (info: ProjectInfo) => {
         if (!currentGroup.value) {
             return;
@@ -89,6 +100,7 @@ export const useGroupStore = defineStore('group', () => {
         currentProjectList,
         addGroup,
         removeGroup,
+        updateGroup,
         addGroupProject,
         removeGroupProject,
         getProjectCwd,
