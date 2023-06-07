@@ -9,6 +9,12 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require('quasar/wrappers');
+const package = require('./package.json');
+
+function getArch() {
+    const arch = process.env.npm_config_arch || process.arch;
+    return arch === 'ia32' ? 'x86' : arch;
+}
 
 module.exports = configure(function (/* ctx */) {
     return {

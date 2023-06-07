@@ -6,8 +6,8 @@ const path = require('path');
 const { zip } = require('compressing');
 const package = require('../package.json');
 
-// 获取windows是多少位
-const getWindowsArch = () => {
+// 获取系统位数
+const getArch = () => {
     const arch = process.env.npm_config_arch || process.arch;
     return arch === 'ia32' ? 'x86' : arch;
 };
@@ -23,9 +23,13 @@ async function main() {
     const platform = getPlatform();
     const outPath = path.join(rootPath, 'dist/electron/Installer', platform);
     await remove(outPath);
-    const exeDirname = `${package.name}-${platform}-${getWindowsArch()}`;
+    await promises.mkdir(outPath, { recursive: true });
+    const exeDirname = `${package.name}-${platform}-${getArch()}`;
     const appDirectory = path.join(rootPath, 'dist/electron/Packaged/' + exeDirname);
-    console.log('安装包目录：', appDirectory);
+    // 判断是否存在目录 appDirectory
+    const isExists = await promises.stat(appDirectory);
+    console.log('安装包目录：', appDirectory, isExists.isDirectory());
+
     if (platform === 'win32') {
         console.log('开始生成 windows 安装包...');
         await createWindowsInstaller({
@@ -33,18 +37,7 @@ async function main() {
             noMsi: true,
             outputDirectory: outPath,
             usePackageJson: true,
-            loadingGift: path.join(rootPath, 'build/loading.gif'),
         });
-
-        const files = await promises.readdir(outPath);
-        const promiseList = [];
-        console.log('windows 打包生成文件列表:', files);
-        for (const file of files) {
-            if (path.extname(file) !== '.exe') {
-                promiseList.push(remove(path.join(outPath, file)));
-            }
-        }
-        await Promise.all(promiseList);
     } else if (platform === 'darwin') {
         console.log('开始生成 MAC 安装包...');
         await createDMG({
