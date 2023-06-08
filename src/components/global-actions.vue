@@ -9,12 +9,14 @@ import { electronExpose } from 'src/common/expose';
 import toast from 'src/common/toast';
 import { getLocalRootFile } from 'src/common/utils/localFile';
 import { useGroupStore } from 'src/stores/group';
+import { useOSStore } from 'src/stores/os';
 import { useProjectStore } from 'src/stores/project';
 import { onMounted, onUnmounted } from 'vue';
 
 const href = useLocalStorage('latestHref', 'http://localhost:8080');
 const groupStore = useGroupStore();
 const projectStore = useProjectStore();
+const os = useOSStore();
 
 const onContextMenu = (e: MouseEvent) => {
     electronExpose.menu.context({ x: e.clientX, y: e.clientY });
@@ -91,11 +93,23 @@ const onAppLog = (e: unknown, ...args: unknown[]) => {
     console.log('app-log:', ...args);
 };
 
+const onAppDownloaded = (e: unknown, releaseNotes: string, releaseName: string) => {
+    Dialog.create({
+        title: '更新',
+        message: os.platform === 'win32' ? releaseNotes : releaseName,
+        ok: '退出并更新',
+        cancel: '取消',
+    }).onOk(() => {
+        electronExpose.updater.quitAndInstall();
+    });
+};
+
 onMounted(() => {
     window.addEventListener('contextmenu', onContextMenu);
     electronExpose.menu.on('menu', onMenuAction);
     electronExpose.app.on('focus', onWindowFocus);
     electronExpose.app.on('log', onAppLog);
+    electronExpose.updater.on('downloaded', onAppDownloaded);
 });
 
 onUnmounted(() => {
@@ -103,6 +117,7 @@ onUnmounted(() => {
     electronExpose.menu.off('menu', onMenuAction);
     electronExpose.app.off('focus', onWindowFocus);
     electronExpose.app.off('log', onAppLog);
+    electronExpose.updater.off('downloaded', onAppDownloaded);
 });
 </script>
 <style scoped></style>

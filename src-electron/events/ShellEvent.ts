@@ -38,6 +38,11 @@ export enum MenuEvent {
     context = 'context',
 }
 
+export enum UpdaterEvent {
+    downloaded = 'downloaded',
+    quitAndInstall = 'quitAndInstall',
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CommonFunction<RT = void> = (...args: any[]) => RT;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

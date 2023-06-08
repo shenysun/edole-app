@@ -1,5 +1,13 @@
 import { ipcRenderer } from 'electron';
-import { GitEvent, ScriptEvent, IpcFunction, MenuEvent, ShellEvent, ListenerEvent } from '../events/ShellEvent';
+import {
+    GitEvent,
+    ScriptEvent,
+    IpcFunction,
+    MenuEvent,
+    ShellEvent,
+    ListenerEvent,
+    UpdaterEvent,
+} from '../events/ShellEvent';
 export const ShellExpose = {
     [ShellEvent.getOS]: () => {
         return ipcRenderer.invoke(ShellEvent.getOS);
@@ -117,6 +125,18 @@ export const App = {
     },
 };
 
+export const Updater = {
+    [ListenerEvent.on]: (type: keyof typeof UpdaterEvent, callback: IpcFunction) => {
+        ipcRenderer.on(type, callback);
+    },
+    [ListenerEvent.off]: (type: keyof typeof UpdaterEvent, callback: IpcFunction) => {
+        ipcRenderer.off(type, callback);
+    },
+    [UpdaterEvent.quitAndInstall]: () => {
+        ipcRenderer.invoke(UpdaterEvent.quitAndInstall);
+    },
+};
+
 export interface TypeExpose {
     shell: typeof ShellExpose;
     script: typeof ScriptExpose;
@@ -124,6 +144,7 @@ export interface TypeExpose {
     std: typeof Std;
     menu: typeof Menu;
     app: typeof App;
+    updater: typeof Updater;
 }
 
 export type RootName =

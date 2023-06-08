@@ -6,6 +6,7 @@ import GitAction from './actions/GitAction';
 import ScriptAction from './actions/ScriptAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
+import UpdaterAction from './actions/UpdaterAction';
 const checked = require('electron-squirrel-startup');
 
 function init() {
@@ -30,15 +31,7 @@ function init() {
     }
 
     function createWindow() {
-        /**
-         * Initial window options
-         */
-        const displays = screen.getAllDisplays();
-        const display =
-            displays.find((display) => {
-                return display.bounds.x !== 0 || display.bounds.y !== 0;
-            }) || screen.getPrimaryDisplay();
-
+        const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
         let bounds = {
             x: 0,
             y: 0,
@@ -79,6 +72,7 @@ function init() {
         new ShellAction(mainWindow);
         new ScriptAction(mainWindow);
         new GitAction(mainWindow);
+        new UpdaterAction(mainWindow);
 
         mainWindow.loadURL(process.env.APP_URL);
         mainWindow.on('focus', () => {
