@@ -7,6 +7,7 @@ import ScriptAction from './actions/ScriptAction';
 import fixPath from 'fix-path';
 import { AppMenu } from './menu/AppMenu';
 import UpdaterAction from './actions/UpdaterAction';
+import { mainSendToRender } from './common';
 const checked = require('electron-squirrel-startup');
 
 function init() {
@@ -76,7 +77,7 @@ function init() {
 
         mainWindow.loadURL(process.env.APP_URL);
         mainWindow.on('focus', () => {
-            mainWindow?.webContents.send('focus');
+            mainSendToRender(mainWindow, 'focus');
         });
 
         if (process.env.DEBUGGING) {

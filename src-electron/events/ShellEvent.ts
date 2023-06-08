@@ -43,6 +43,17 @@ export enum UpdaterEvent {
     quitAndInstall = 'quitAndInstall',
 }
 
+export enum AppMonitorEvent {
+    stdout = 'stdout',
+    stderr = 'stderr',
+    focus = 'focus',
+    log = 'log',
+    menu = 'menu',
+    downloaded = 'downloaded',
+}
+
+export type TypeAppMonitorEvent = keyof typeof AppMonitorEvent;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CommonFunction<RT = void> = (...args: any[]) => RT;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

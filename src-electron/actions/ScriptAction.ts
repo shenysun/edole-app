@@ -2,6 +2,7 @@ import { ChildProcess, exec } from 'child_process';
 import { BrowserWindow, ipcMain } from 'electron';
 import { promises } from 'fs';
 import { basename, join } from 'path';
+import { mainSendToRender } from '../common';
 import { ScriptEvent } from '../events/ShellEvent';
 
 export default class ScriptAction {
@@ -75,11 +76,11 @@ export default class ScriptAction {
         return new Promise((resolve, reject) => {
             const { stdout, stderr } = process;
             const onStdOut = (chunk: unknown) => {
-                this.mainWindow.webContents.send('stdout', chunk);
+                mainSendToRender(this.mainWindow, 'stdout', chunk);
             };
 
             const onStdErr = (chunk: unknown) => {
-                this.mainWindow.webContents.send('stderr', chunk);
+                mainSendToRender(this.mainWindow, 'stderr', chunk);
             };
 
             stdout?.on('data', onStdOut);

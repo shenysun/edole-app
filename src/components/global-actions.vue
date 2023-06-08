@@ -99,6 +99,8 @@ const onAppDownloaded = (e: unknown, releaseNotes: string, releaseName: string) 
         message: os.platform === 'win32' ? releaseNotes : releaseName,
         ok: '退出并更新',
         cancel: '取消',
+        persistent: true,
+        focus: 'none',
     }).onOk(() => {
         electronExpose.updater.quitAndInstall();
     });
@@ -106,18 +108,18 @@ const onAppDownloaded = (e: unknown, releaseNotes: string, releaseName: string) 
 
 onMounted(() => {
     window.addEventListener('contextmenu', onContextMenu);
-    electronExpose.menu.on('menu', onMenuAction);
+    electronExpose.app.on('menu', onMenuAction);
     electronExpose.app.on('focus', onWindowFocus);
     electronExpose.app.on('log', onAppLog);
-    electronExpose.updater.on('downloaded', onAppDownloaded);
+    electronExpose.app.on('downloaded', onAppDownloaded);
 });
 
 onUnmounted(() => {
     window.removeEventListener('contextmenu', onContextMenu);
-    electronExpose.menu.off('menu', onMenuAction);
+    electronExpose.app.off('menu', onMenuAction);
     electronExpose.app.off('focus', onWindowFocus);
     electronExpose.app.off('log', onAppLog);
-    electronExpose.updater.off('downloaded', onAppDownloaded);
+    electronExpose.app.off('downloaded', onAppDownloaded);
 });
 </script>
 <style scoped></style>

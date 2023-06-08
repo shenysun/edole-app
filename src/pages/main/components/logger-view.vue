@@ -42,13 +42,13 @@ watch(
 );
 
 onMounted(() => {
-    electronExpose.std.on('stdout', onStdoutHandler);
-    electronExpose.std.on('stderr', onStderrHandler);
+    electronExpose.app.on('stdout', onStdoutHandler);
+    electronExpose.app.on('stderr', onStderrHandler);
 });
 
 onBeforeUnmount(() => {
-    electronExpose.std.off('stdout', onStdoutHandler);
-    electronExpose.std.off('stderr', onStderrHandler);
+    electronExpose.app.off('stdout', onStdoutHandler);
+    electronExpose.app.off('stderr', onStderrHandler);
 });
 </script>
 <style lang="scss" scoped>

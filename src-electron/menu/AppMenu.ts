@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain, Menu, MenuItem, MenuItemConstructorOptions } from 'electron';
+import { mainSendToRender } from '../common';
 import { MenuEvent } from '../events/ShellEvent';
 
 /**
@@ -86,13 +87,13 @@ export class AppMenu {
 
     private sendOpenRoot() {
         this.windows.forEach((win) => {
-            win.webContents.send('menu', { type: 'open-root' });
+            mainSendToRender(win, 'menu', { type: 'open-root' });
         });
     }
 
     private sendWriteIndex(client: string) {
         this.windows.forEach((win) => {
-            win.webContents.send('menu', { type: 'write-index', client });
+            mainSendToRender(win, 'menu', { type: 'write-index', client });
         });
     }
 }

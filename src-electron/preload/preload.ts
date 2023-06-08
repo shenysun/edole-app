@@ -94,25 +94,15 @@ export const GitExpose = {
     },
 };
 
-export const Std = {
-    [ListenerEvent.on]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
-        ipcRenderer.on(type, callback);
-    },
-
-    [ListenerEvent.off]: (type: 'stdout' | 'stderr', callback: IpcFunction) => {
-        return ipcRenderer.off(type, callback);
-    },
-};
-
 export const Menu = {
     [MenuEvent.context]: (data: { x: number; y: number }) => {
         ipcRenderer.send(MenuEvent.context, data);
     },
-    [ListenerEvent.on]: (type: 'menu', callback: IpcFunction) => {
-        ipcRenderer.on(type, callback);
-    },
-    [ListenerEvent.off]: (type: string, callback: IpcFunction) => {
-        ipcRenderer.off(type, callback);
+};
+
+export const Updater = {
+    [UpdaterEvent.quitAndInstall]: () => {
+        ipcRenderer.invoke(UpdaterEvent.quitAndInstall);
     },
 };
 
@@ -125,23 +115,10 @@ export const App = {
     },
 };
 
-export const Updater = {
-    [ListenerEvent.on]: (type: keyof typeof UpdaterEvent, callback: IpcFunction) => {
-        ipcRenderer.on(type, callback);
-    },
-    [ListenerEvent.off]: (type: keyof typeof UpdaterEvent, callback: IpcFunction) => {
-        ipcRenderer.off(type, callback);
-    },
-    [UpdaterEvent.quitAndInstall]: () => {
-        ipcRenderer.invoke(UpdaterEvent.quitAndInstall);
-    },
-};
-
 export interface TypeExpose {
     shell: typeof ShellExpose;
     script: typeof ScriptExpose;
     git: typeof GitExpose;
-    std: typeof Std;
     menu: typeof Menu;
     app: typeof App;
     updater: typeof Updater;
