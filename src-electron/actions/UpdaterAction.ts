@@ -1,4 +1,4 @@
-import { app, autoUpdater, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, autoUpdater, BrowserWindow, ipcMain } from 'electron';
 import { UpdaterEvent } from '../events/ShellEvent';
 
 export default class UpdaterAction {
