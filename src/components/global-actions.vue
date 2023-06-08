@@ -87,16 +87,22 @@ const onWindowFocus = () => {
     });
 };
 
+const onAppLog = (e: unknown, ...args: unknown[]) => {
+    console.log('app-log:', ...args);
+};
+
 onMounted(() => {
     window.addEventListener('contextmenu', onContextMenu);
     electronExpose.menu.on('menu', onMenuAction);
     electronExpose.app.on('focus', onWindowFocus);
+    electronExpose.app.on('log', onAppLog);
 });
 
 onUnmounted(() => {
     window.removeEventListener('contextmenu', onContextMenu);
     electronExpose.menu.off('menu', onMenuAction);
     electronExpose.app.off('focus', onWindowFocus);
+    electronExpose.app.off('log', onAppLog);
 });
 </script>
 <style scoped></style>
