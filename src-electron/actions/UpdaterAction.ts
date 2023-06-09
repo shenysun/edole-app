@@ -8,15 +8,15 @@ export default class UpdaterAction {
     }
 
     private init() {
-        const server = 'https://edole-app-updater.vercel.app';
-        const url = `${server}/update/${process.platform}/${app.getVersion()}`;
-        autoUpdater.setFeedURL({ url });
         this.registerHandler();
 
         if (process.env.NODE_ENV === 'production') {
             setTimeout(() => {
+                const server = 'https://edole-app-updater.vercel.app';
+                const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+                autoUpdater.setFeedURL({ url });
                 autoUpdater.checkForUpdates();
-            }, 1000);
+            }, 5000);
         }
     }
 
