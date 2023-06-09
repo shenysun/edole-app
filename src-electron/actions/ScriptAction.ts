@@ -50,10 +50,13 @@ export default class ScriptAction {
     }
 
     async run(command: string, cwd: string) {
-        const process = exec(`${this.binary} run ${command}`, { cwd, env: {} as NodeJS.ProcessEnv });
-        this.processCache.set(cwd, process);
+        const sp = exec(`${this.binary} run ${command}`, {
+            cwd,
+            env: { PATH: process.env.PATH } as unknown as NodeJS.ProcessEnv,
+        });
+        this.processCache.set(cwd, sp);
         const projectName = basename(cwd);
-        const info = await this.dealStdEvent(process, { command, projectName });
+        const info = await this.dealStdEvent(sp, { command, projectName });
         this.processCache.delete(cwd);
         return info;
     }
@@ -76,17 +79,17 @@ export default class ScriptAction {
         return new Promise((resolve, reject) => {
             const { stdout, stderr } = process;
             const onStdOut = (chunk: unknown) => {
-                mainSendToRender(this.mainWindow, 'stdout', chunk);
+                mainSendToRender(this.mainWindow, 'log', chunk);
             };
 
             const onStdErr = (chunk: unknown) => {
-                mainSendToRender(this.mainWindow, 'stderr', chunk);
+                mainSendToRender(this.mainWindow, 'log', chunk);
             };
 
             stdout?.on('data', onStdOut);
             stderr?.on('data', onStdErr);
 
-            process.once('exit', (code) => {
+            process.once('exit', (code, s) => {
                 stderr?.off('data', onStdOut);
                 stderr?.off('data', onStdErr);
                 if (code === 0) {
