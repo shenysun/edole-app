@@ -18,7 +18,7 @@
 
 :soon: 支持用户自定义一键配置脚本。
 
-:soon: 支持 commit/push
+:soon: 支持可视化查看 git status; 支持 commit/push
 
 ## 如何使用
 
