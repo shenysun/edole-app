@@ -106,8 +106,12 @@ const onOpenClick = () => {
 
 const onPullClick = async () => {
     try {
-        await electronExpose.git.pull({ cwd: cwd.value });
-        toast.show(`${projectName.value} 拉取代码成功`, 'done');
+        const { success } = await electronExpose.git.pull({ cwd: cwd.value });
+        if (success) {
+            toast.show(`${projectName.value} 拉取代码成功`, 'done');
+        } else {
+            toast.show(`${projectName.value} 拉取代码失败`, 'error');
+        }
     } catch (error) {
         toast.show(`${projectName.value} 拉取代码失败 ${error}`, 'error');
     }

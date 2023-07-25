@@ -93,7 +93,20 @@ export default class GitAction {
 
     public async pull(cwd: string) {
         const gitManager = this.getGitHandle(cwd);
-        return gitManager.pull();
+        try {
+            const res = await gitManager.pull();
+            return {
+                success: true,
+                data: res,
+                cwd,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                data: error,
+                cwd,
+            };
+        }
     }
 
     public async checkoutBranch(cwd: string, branch: string, startPoint?: string) {

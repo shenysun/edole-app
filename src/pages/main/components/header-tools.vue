@@ -62,8 +62,18 @@ const batchPullClick = async () => {
 
     Loading.show({ message: '批量更新代码中' });
     try {
-        await Promise.all(list);
-        toast.show('批量更新代码成功', 'done');
+        const pullData = (await Promise.all(list)) as Array<{ success: boolean; cwd: string; data: unknown }>;
+        const wrongList: string[] = [];
+        pullData.forEach((res, index) => {
+            if (!res.success && currentProjectList.value?.[index]) {
+                wrongList.push(currentProjectList.value?.[index].projectName);
+            }
+        });
+        if (wrongList.length) {
+            toast.show(`批量更新代码失败[ ${wrongList.toString()} ]`, 'error');
+        } else {
+            toast.show('批量更新代码成功', 'done');
+        }
     } catch (error) {
         toast.show('批量更新代码失败', 'error');
     } finally {
